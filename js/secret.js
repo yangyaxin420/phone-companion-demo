@@ -1085,11 +1085,11 @@ function getPersonalityPlaylist(pName, charId) {
 
 /* ---- 聊天推荐歌曲检测和存储 ---- */
 function getRecommendedSongs(charId) {
-  try { return JSON.parse(localStorage.getItem('recSongs_' + charId)) || []; } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem(LS_PREFIX+'recSongs_' + charId)) || []; } catch(e) { return []; }
 }
 
 function saveRecommendedSongs(charId, songs) {
-  localStorage.setItem('recSongs_' + charId, JSON.stringify(songs));
+  localStorage.setItem(LS_PREFIX+'recSongs_' + charId, JSON.stringify(songs));
 }
 
 /* ---- 手动添加歌曲 ---- */
@@ -1665,12 +1665,12 @@ function showSecretBrowser() {
 /* ===== 匿名信箱 ===== */
 function getSecretMailbox(charId) {
   try {
-    return JSON.parse(localStorage.getItem('secretMailbox_' + charId)) || [];
+    return JSON.parse(localStorage.getItem(LS_PREFIX+'secretMailbox_' + charId)) || [];
   } catch(e) { return []; }
 }
 
 function saveSecretMailbox(charId, data) {
-  localStorage.setItem('secretMailbox_' + charId, JSON.stringify(data));
+  localStorage.setItem(LS_PREFIX+'secretMailbox_' + charId, JSON.stringify(data));
 }
 
 function showSecretMailbox() {

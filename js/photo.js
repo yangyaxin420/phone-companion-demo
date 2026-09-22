@@ -1,5 +1,5 @@
 /* ==================== 照片库（AI 发图的素材） ==================== */
-/* 用户添加的照片存 localStorage（phone_album，压缩 dataURL），他用这些照片发私聊/朋友圈 */
+/* 用户添加的照片存 localStorage（demo_album，压缩 dataURL），他用这些照片发私聊/朋友圈 */
 
 function getAlbumPhotos() {
   return lsGet('album', []);

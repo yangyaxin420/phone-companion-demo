@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#ecf6f8">
-<meta name="app-version" content="v1.0.0 (2026.09.22)">
+<meta name="app-version" content="v1.0.1 (2026.09.22)">
 <title>我的手机</title>
 <link rel="stylesheet" href="css/style.css?v=52">
 <link rel="stylesheet" href="css/track.css?v=52">
@@ -1126,7 +1126,7 @@
 /* ==================== 初始化 ==================== */
 function init() {
   // 清理历史闹钟数据（闹钟功能已彻底移除）
-  try { localStorage.removeItem('phone_alarms'); } catch(e) {}
+  try { localStorage.removeItem(LS_PREFIX+'alarms'); } catch(e) {}
   // 主页日期
   var now = new Date();
   document.getElementById('homeDate').textContent = now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日';

@@ -115,7 +115,7 @@ async function exportData() {
     const allData = { _exportVersion: 1 };
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('phone_')) {
+      if (key && key.startsWith(LS_PREFIX)) {
         try { const val = localStorage.getItem(key); allData[key] = JSON.parse(val); } catch(e) { allData[key] = localStorage.getItem(key); }
       }
     }

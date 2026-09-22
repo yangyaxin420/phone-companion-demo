@@ -160,8 +160,8 @@ function addExpense() {
   addChatSystem('💰 已记录' + (recordType==='expense'?'支出':'收入') + '：' + category + ' ' + amount.toFixed(2) + '元' + (note?' ('+note+')':''));
 }
 
-function getExpRecords() { try { var r = JSON.parse(localStorage.getItem('expense_records')) || []; var changed = false; r.forEach(function(rec, i) { if (!rec.id) { rec.id = Date.now() + '_' + Math.random().toString(36).slice(2,8); changed = true; } }); if (changed) localStorage.setItem('expense_records', JSON.stringify(r)); return r; } catch(e) { return []; } }
-function saveExpRecords(v) { localStorage.setItem('expense_records', JSON.stringify(v)); }
+function getExpRecords() { try { var r = JSON.parse(localStorage.getItem(LS_PREFIX+'expense_records')) || []; var changed = false; r.forEach(function(rec, i) { if (!rec.id) { rec.id = Date.now() + '_' + Math.random().toString(36).slice(2,8); changed = true; } }); if (changed) localStorage.setItem(LS_PREFIX+'expense_records', JSON.stringify(r)); return r; } catch(e) { return []; } }
+function saveExpRecords(v) { localStorage.setItem(LS_PREFIX+'expense_records', JSON.stringify(v)); }
 
 function delExpense(id) {
   var records = getExpRecords();

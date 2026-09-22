@@ -32,7 +32,7 @@ if (!chatData) {
   chatData['ai'] = oldChat; // 旧数据归他
   lsSet('chatData', chatData);
   // 删除旧 key
-  localStorage.removeItem('phone_chat');
+  localStorage.removeItem(LS_PREFIX+'chat');
 }
 
 // 获取当前角色的聊天消息
