@@ -1,0 +1,101 @@
+/* ==================== 足迹 · NFC 打卡站 ==================== */
+
+/* 足迹页工具栏（一行，纯文字按钮） */
+.track-toolbar{
+  display:flex;align-items:center;gap:8px;padding:10px 16px;
+  border-bottom:1px solid #E0F2FE;background:#F0F9FF;flex-shrink:0;
+}
+.track-tbtn{
+  padding:8px 15px;border-radius:10px;border:1px solid #BAE6FD;background:#fff;
+  color:#333;font-size:13px;font-weight:600;cursor:pointer;line-height:1.2;
+}
+.track-tbtn:active{background:#E0F2FE;}
+.track-seg{display:flex;background:#E0F2FE;border-radius:10px;padding:2px;margin-left:auto;}
+.track-seg button{
+  padding:7px 14px;border:none;border-radius:8px;background:transparent;color:#8aa;
+  font-size:12px;font-weight:600;cursor:pointer;line-height:1.2;
+}
+.track-seg button.on{background:#fff;color:#0EA5E9;box-shadow:0 1px 3px rgba(14,165,233,.25);}
+
+.track-page{padding:12px 14px 24px;}
+
+/* 地图 */
+.track-map{height:300px;border-radius:16px;overflow:hidden;background:#EAF3FC;
+  border:1px solid #E0F2FE;margin-bottom:10px;position:relative;}
+.track-map-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;font-size:13px;color:#9ab;text-align:center;padding:16px;line-height:1.6;}
+.track-marker{
+  width:22px;height:22px;border-radius:50%;background:#667eea;color:#fff;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  border:2px solid #fff;box-shadow:0 2px 6px rgba(102,126,234,.5);
+}
+.track-marker.sm{width:20px;height:20px;background:#0EA5E9;font-size:10px;}
+.track-infowin{min-width:150px;max-width:230px;font-size:13px;line-height:1.5;}
+.track-infowin .tw-place{font-weight:700;color:#1e1e1e;margin-bottom:2px;}
+.track-infowin .tw-time{font-size:11px;color:#888;margin-bottom:4px;}
+.track-infowin .tw-text{color:#444;font-size:12px;line-height:1.6;}
+
+/* 打卡列表 */
+.track-list-count{font-size:12px;color:#888;padding:6px 2px 8px;}
+.track-item{
+  background:#fff;border:1px solid #E0F2FE;border-radius:14px;padding:10px 12px;
+  margin-bottom:8px;cursor:pointer;transition:transform .1s;position:relative;
+}
+.track-item:active{transform:scale(.99);}
+.track-item-head{display:flex;justify-content:space-between;align-items:center;}
+.track-item-time{font-size:11px;color:#888;}
+.track-del{background:none;border:none;font-size:13px;cursor:pointer;opacity:.4;padding:2px 4px;}
+.track-del:hover{opacity:.9;}
+.track-item-place{font-size:14px;font-weight:700;color:#1e1e1e;margin:2px 0;}
+.track-item-text{font-size:13px;color:#555;line-height:1.6;}
+.track-empty{text-align:center;color:#9aa;font-size:14px;padding:40px 20px;line-height:1.8;}
+.track-empty span{font-size:12px;color:#bcc;}
+
+/* 打卡 overlay */
+.track-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,25,45,.5);
+  display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(2px);
+}
+.track-card{
+  width:min(320px,86vw);background:#fff;border-radius:22px;padding:26px 22px 18px;
+  text-align:center;box-shadow:0 12px 40px rgba(20,25,45,.25);
+}
+.track-state-icon{font-size:46px;margin-bottom:8px;}
+.track-state-title{font-size:17px;font-weight:700;color:#1e1e1e;line-height:1.45;word-break:break-all;}
+.track-state-sub{font-size:12px;color:#888;margin-top:6px;line-height:1.5;}
+.track-result-text{
+  margin-top:14px;background:#F0F9FF;border:1px solid #E0F2FE;border-radius:14px;
+  padding:12px 14px;font-size:14px;color:#333;line-height:1.75;text-align:left;
+  border-left:3px solid #0EA5E9;
+}
+.track-actions{display:flex;gap:10px;margin-top:16px;justify-content:center;}
+.track-btn{
+  flex:1;padding:11px 0;border-radius:13px;border:1px solid #ddd;background:#fff;
+  color:#555;font-size:14px;font-weight:600;cursor:pointer;
+}
+.track-btn.primary{background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;}
+.track-btn.ghost{background:transparent;border:none;color:#999;}
+
+/* 年度总结 */
+.track-sum-head{display:flex;align-items:center;justify-content:center;gap:16px;margin:6px 0 12px;}
+.track-sum-nav{
+  width:34px;height:34px;border-radius:50%;border:1px solid #BAE6FD;background:#fff;
+  font-size:14px;cursor:pointer;color:#0EA5E9;
+}
+.track-sum-year{font-size:18px;font-weight:800;color:#1e1e1e;min-width:90px;text-align:center;}
+.track-stats{display:flex;gap:8px;margin-bottom:10px;}
+.track-stat{
+  flex:1;background:linear-gradient(135deg,#f8f9ff,#eef1ff);border:1px solid #E0F2FE;
+  border-radius:14px;padding:12px 6px;text-align:center;
+}
+.ts-num{font-size:22px;font-weight:800;color:#667eea;}
+.ts-label{font-size:11px;color:#888;margin-top:2px;}
+.track-top{font-size:12px;color:#666;background:#F0F9FF;border-radius:10px;
+  padding:8px 12px;margin-bottom:10px;line-height:1.6;}
+.track-sum-btn{width:100%;margin:4px 0 12px;padding:13px 0;border-radius:14px;}
+.track-summary-text{
+  background:#fff;border:1px solid #E0F2FE;border-left:3px solid #667eea;border-radius:14px;
+  padding:14px;font-size:14px;color:#333;line-height:1.85;margin-bottom:14px;white-space:pre-wrap;
+}
+.track-loading{color:#888;font-size:13px;text-align:center;padding:16px;line-height:1.7;}
+.track-sum-list{margin-top:2px;}

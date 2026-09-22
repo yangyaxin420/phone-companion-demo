@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#ecf6f8">
+<meta name="app-version" content="v1.0.0 (2026.09.22)">
+<title>我的手机</title>
+<link rel="stylesheet" href="css/style.css?v=52">
+<link rel="stylesheet" href="css/track.css?v=52">
+</head>
+<body>
+
+<div class="phone-frame">
+<div class="phone-screen">
+<!-- 壁纸底纹 -->
+<div class="wallpaper"></div>
+
+<!-- 状态栏 -->
+<div class="status-bar">
+  <span class="sb-time" id="statusTime">12:00</span>
+  <span class="sb-icons">📶 🔋</span>
+</div>
+
+<!-- 内容区 -->
+<div class="content-area" id="contentArea">
+
+  <!-- ===== 主页 ===== -->
+  <div class="page active" id="page-main">
+    <div class="main-content">
+      <!-- 问候 -->
+      <div class="greeting">
+        <div class="date" id="homeDate">2026年6月30日</div>
+        <div class="hello">你好<span id="homeGreetingName"></span><span> · 今天想做点什么？</span></div>
+      </div>
+
+      <!-- 天气 + 倒数日小卡片 -->
+      <div class="home-cards-row">
+        <div class="weather-card pressable" onclick="onWeatherCardClick()" oncontextmenu="event.preventDefault();showWeatherCityInput()" ontouchstart="weatherLongPressTimer=setTimeout(()=>{showWeatherCityInput()},600)" ontouchend="clearTimeout(weatherLongPressTimer)" ontouchcancel="clearTimeout(weatherLongPressTimer)">
+          <div class="weather-info">
+            <div class="temp" id="weatherTemp">--°</div>
+            <div id="weatherDesc">获取中...</div>
+            <div class="weather-detail" id="weatherDetail"></div>
+          </div>
+          <div class="weather-icon" id="weatherIcon">🌤</div>
+        </div>
+        <div class="countdown-card pressable" id="countdownCard" onclick="openCdEdit()">
+          <div class="cd-content">
+            <div class="cd-event" id="cdEvent">纪念日</div>
+            <div class="cd-days"><span id="cdDays">0</span><span class="cd-unit" id="cdUnit">天</span></div>
+            <div class="cd-date" id="cdDate">2026-01-01</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 今日课表 + 值班（自动更新，course.js renderTodaySchedule 填充） -->
+      <div class="today-card" id="todayScheduleCard" style="display:none;"></div>
+
+      <!-- 应用网格 -->
+      <div class="app-grid" id="iconGrid1"></div>
+    </div>
+  </div>
+
+  <!-- ===== 任务清单 ===== -->
+  <div class="page" id="page-tasks">
+    <div class="sub-page-header">☑ 任务清单</div>
+    <div class="sub-page-body" style="padding:8px 16px;">
+      <div class="schedule-list" id="scheduleList"></div>
+    </div>
+    <div class="task-add-bar" style="padding:10px 16px;border-top:1px solid #E0F2FE;background:#F0F9FF;">
+      <input type="text" id="taskInput" placeholder="添加日程..." onkeydown="if(event.key==='Enter')addTask()" class="flex-1">
+      <button onclick="addTask()" style="background:#1e1e1e;color:#f8f8f8;border-radius:12px;padding:10px 18px;font-weight:600;font-size:14px;">添加</button>
+    </div>
+  </div>
+
+  <!-- ===== 记账 ===== -->
+  <div class="page" id="page-expense">
+    <div class="sub-page-header flex-between">
+      <span>💰 记账</span>
+      <div class="flex-gap6">
+        <button onclick="document.getElementById('expImportInput').click()" class="txt-muted">📥导入</button>
+        <button onclick="exportExpense()" class="txt-muted">📤导出</button>
+        <button onclick="clearAllExpense()" style="font-size:13px;background:none;border:none;cursor:pointer;color:#e55;">🗑清空</button>
+      </div>
+      <input type="file" id="expImportInput" accept=".json" style="display:none;" onchange="importExpense(event)">
+    </div>
+    <div class="expense-tabs">
+      <button class="expense-tab active" data-tab="expense" onclick="switchExpenseTab('expense')">支出</button>
+      <button class="expense-tab" data-tab="income" onclick="switchExpenseTab('income')">收入</button>
+      <button class="expense-tab" data-tab="stats" onclick="switchExpenseTab('stats')">统计</button>
+    </div>
+    <div class="expense-page scroll-y">
+      <!-- 记账表单 -->
+      <div class="expense-form">
+        <div class="expense-form-row">
+          <label>金额</label>
+          <input type="number" id="expAmount" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="expense-form-row">
+          <label>分类</label>
+          <div class="expense-cat-grid" id="expCatGrid"></div>
+        </div>
+        <div class="expense-form-row">
+          <label>备注</label>
+          <input type="text" id="expNote" placeholder="买了什么…">
+        </div>
+        <div class="expense-form-row">
+          <label>日期</label>
+          <input type="date" id="expDate">
+        </div>
+        <button class="persona-save" onclick="addExpense()">✓ 记录</button>
+      </div>
+      <!-- 列表 -->
+      <div id="expenseListArea">
+        <div class="expense-list" id="expDetailList"></div>
+      </div>
+      <div id="expenseStatsArea" style="display:none;">
+        <div class="expense-summary" id="expSummary"></div>
+        <div class="expense-stats-tabs">
+          <button class="expense-stats-tab active" data-stab="expense" onclick="switchStatsTab('expense')">支出分类</button>
+          <button class="expense-stats-tab" data-stab="income" onclick="switchStatsTab('income')">收入分类</button>
+        </div>
+        <canvas id="expChart" width="320" height="200" style="width:100%;height:200px;border-radius:10px;background:#F0F9FF;"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- ===== Secret ===== -->
+  <div class="page" id="page-secret">
+    <div class="sub-page-header flex-between">
+      <span id="secretTitle">🔍 AI的手机</span>
+      <button id="secretBackBtn" onclick="showSecretDesk()" style="display:none;font-size:13px;background:none;border:none;cursor:pointer;color:#888;">← 返回</button>
+    </div>
+    <div id="secretDesk" class="secret-desk">
+      <div style="font-size:36px;margin-bottom:2px;">📱</div>
+      <div style="font-size:13px;color:#888;margin-bottom:8px;">这是 <span id="secretAiName">AI</span> 的手机</div>
+      <!-- 角色切换 -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:10px;" id="secretCharSwitcher"></div>
+      <div class="secret-grid">
+        <div class="secret-icon" onclick="showSecretNotes()">
+          <div class="si-symbol">📓</div>
+          <div class="si-name">记事本</div>
+        </div>
+        <div class="secret-icon" onclick="showSecretAlbum()">
+          <div class="si-symbol">🖼</div>
+          <div class="si-name">相册</div>
+        </div>
+        <div class="secret-icon" onclick="showSecretPlaylist()">
+          <div class="si-symbol">🎵</div>
+          <div class="si-name">最近播放</div>
+        </div>
+        <div class="secret-icon" onclick="showSecretFoodDelivery()">
+          <div class="si-symbol">🍔</div>
+          <div class="si-name">外卖订单</div>
+        </div>
+        <div class="secret-icon" onclick="showSecretBrowser()">
+          <div class="si-symbol">🌐</div>
+          <div class="si-name">浏览记录</div>
+        </div>
+        <div class="secret-icon" onclick="showSecretMailbox()">
+          <div class="si-symbol">✉️</div>
+          <div class="si-name">匿名信箱</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#ccc;margin-top:12px;text-align:center;">💡 内容由AI生成，可接入API更丰富</div>
+    </div>
+    <div id="secretContent" class="secret-content" style="display:none;"></div>
+  </div>
+
+  <!-- ===== 日报 ===== -->
+  <div class="page" id="page-daily">
+    <div class="sub-page-header flex-between">
+      <span>📋 日报</span>
+      <button onclick="showDailyToast('💡 每天记一条，自动生成日报/周报/月报')" style="font-size:13px;color:#888;background:none;border:none;cursor:pointer;">?</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;">
+      <!-- Tab切换 -->
+      <div style="display:flex;gap:4px;background:#E0F2FE;border-radius:10px;padding:3px;">
+        <button class="daily-tab active" data-mode="daily" onclick="switchDailyMode('daily')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#333;transition:.15s;">📅 日报</button>
+        <button class="daily-tab" data-mode="weekly" onclick="switchDailyMode('weekly')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#999;">📅 周报</button>
+        <button class="daily-tab" data-mode="monthly" onclick="switchDailyMode('monthly')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#999;">📅 月报</button>
+<button class="daily-tab" data-mode="summary" onclick="switchDailyMode('summary')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#999;">📊 综合</button>
+      </div>
+      <!-- 输入区（JS动态控制） -->
+      <div id="dailyInputArea"></div>
+      <!-- 按钮 -->
+      <div class="flex-gap8">
+        <button id="dailyBtn" onclick="generateDailyReport()" style="flex:1;padding:10px;background:#0EA5E9;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">🤖 生成日报</button>
+        <button onclick="fillDailyDemo()" style="padding:10px 16px;background:none;border:1px solid #BAE6FD;border-radius:12px;font-size:13px;color:#888;cursor:pointer;">✨ 示例</button>
+      </div>
+      <!-- 结果区 -->
+      <div id="dailyResults" style="display:none;"></div>
+      <!-- 每日记录列表 -->
+      <div id="dailyDayList" style="margin-top:4px;"></div>
+      <!-- 历史报告 -->
+      <div id="dailyReportList" style="margin-top:4px;"></div>
+    </div>
+  </div>
+
+  <!-- ===== 聊天列表（微信风格） ===== -->
+  <div class="page" id="page-conv-list">
+    <div class="chat-wallpaper"></div>
+    <div class="sub-page-header flex-between page-header-blur">
+      <span>💬 消息</span>
+      <div class="flex-gap8">
+        <button id="btnManageChars" onclick="toggleCharManage()" style="font-size:14px;font-weight:400;color:#A0AEC0;">···</button>
+        <button onclick="showAddCharDialog()" style="font-size:16px;font-weight:400;">+ 角色</button>
+      </div>
+    </div>
+    <div class="conv-list" id="convList">
+      <div class="conv-empty" style="text-align:center;padding:40px;color:#aaa;font-size:13px;">还没有角色<br>点右上角添加</div>
+    </div>
+  </div>
+
+  <!-- ===== 聊天 ===== -->
+  <div class="page" id="page-chat">
+    <div class="chat-wallpaper"></div>
+    <!-- 查找聊天记录 overlay -->
+    <div class="chat-search-overlay" id="chatSearchOverlay" style="display:none;">
+      <div class="chat-search-box">
+        <input type="text" id="chatSearchInput" placeholder="搜索聊天内容..." oninput="doChatSearch(this.value)">
+        <button onclick="closeChatSearch()" style="background:none;border:none;font-size:16px;cursor:pointer;color:#888;">✕</button>
+      </div>
+      <div class="chat-search-results" id="chatSearchResults"></div>
+    </div>
+    <div class="sub-page-header flex-between page-header-blur">
+      <button onclick="showConvList()" style="font-size:18px;font-weight:400;background:none;border:none;">‹ 返回</button>
+      <span id="chatTitle">聊天</span>
+      <div class="flex-gap6">
+        <button onclick="openChatSearch()" style="font-size:16px;background:none;border:none;cursor:pointer;" title="查找聊天记录">🔍</button>
+        <button onclick="toggleSpConfig()" style="font-size:18px;font-weight:400;">⚙</button>
+      </div>
+    </div>
+    <div class="chat-page">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-typing" id="chatTyping"><span></span><span></span><span></span></div>
+      <div class="chat-context-bar" id="chatContextBar" onclick="toggleContextBar()">
+        <span id="chatContextSummary"></span>
+        <span style="font-size:10px;">▼</span>
+      </div>
+      <div class="chat-context-detail" id="chatContextDetail" style="display:none;"></div>
+      <div class="chat-input-bar">
+        <button class="emoji-btn" id="emojiToggle" onclick="toggleEmojiPanel()">😊</button>
+        <button class="emoji-btn" id="diceToggle" onclick="toggleDiceMenu()" style="font-size:18px;">🎲</button>
+        <button class="emoji-btn" id="dailyQBtn" onclick="askDailyQuestion()" style="font-size:16px;" title="今日一问">💭</button>
+        <div class="chat-dice-menu" id="diceMenu">
+          <button onclick="sendDice()">🎲 掷骰子</button>
+          <button onclick="sendLottery()">🎯 抽签</button>
+        </div>
+        <textarea id="chatInput" rows="1" placeholder="说点什么..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+        <button class="chat-send-btn" onclick="sendChat()">↑</button>
+        <div class="emoji-panel" id="emojiPanel">
+          <div class="emoji-panel-tabs">
+            <button class="emoji-tab active" onclick="switchEmojiTab('common',this)">常用</button>
+            <button class="emoji-tab" onclick="switchEmojiTab('face',this)">表情</button>
+            <button class="emoji-tab" onclick="switchEmojiTab('nature',this)">自然</button>
+            <button class="emoji-tab" onclick="switchEmojiTab('food',this)">美食</button>
+            <button class="emoji-tab" onclick="switchEmojiTab('custom',this)">自定义</button>
+          </div>
+          <div class="emoji-grid" id="emojiGrid"></div>
+          <div class="emoji-custom-bar" id="emojiCustomBar" style="display:none;">
+            <input type="text" id="customEmojiInput" placeholder="输入 emoji 或粘贴表情">
+            <button onclick="addCustomEmoji()">添加文字</button>
+            <button onclick="addCustomImageEmoji()">📷 图片</button>
+            <input type="file" id="emojiImageInput" accept="image/*" style="display:none;" onchange="handleEmojiImageSelect(event)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 朋友圈 ===== -->
+  <div class="page" id="page-moments">
+    <div class="sub-page-header flex-between">
+      <span>朋友圈</span>
+      <button onclick="showMomentEditor()" style="font-size:20px;background:none;border:none;cursor:pointer;">✏️</button>
+    </div>
+    <div class="sub-page-body">
+      <div class="moments-list" id="momentsList"></div>
+    </div>
+  </div>
+
+  <!-- ===== 足迹 ===== -->
+  <div class="page" id="page-track">
+    <div class="sub-page-header">🧭 足迹</div>
+    <div class="track-toolbar">
+      <button class="track-tbtn" onclick="manualCheckin()">打卡</button>
+      <button class="track-tbtn" onclick="enterPickMode()">选点</button>
+      <div class="track-seg">
+        <button class="on" id="trackViewListBtn" onclick="switchTrackView('list')">列表</button>
+        <button id="trackViewSumBtn" onclick="switchTrackView('summary')">年度</button>
+      </div>
+    </div>
+    <div class="track-page">
+      <div class="track-view" id="trackViewList">
+        <div class="track-map" id="trackMap"></div>
+        <div class="track-list" id="trackList"></div>
+      </div>
+      <div class="track-view" id="trackViewSummary" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ===== 陪伴计时 ===== -->
+  <div class="page" id="page-companion">
+    <div class="sub-page-header">陪伴 · 专注计时</div>
+    <div class="companion-page scroll-y">
+      <!-- 任务输入 -->
+      <div class="companion-input-group">
+        <div class="input-label">📝 任务</div>
+        <input type="text" id="compTaskInput" placeholder="写点什么吧…" autocomplete="off">
+      </div>
+      <!-- 活动选择 -->
+      <div class="companion-input-group">
+        <div class="input-label">🎯 活动</div>
+        <div class="companion-activities" id="companionActs"></div>
+      </div>
+      <!-- 时长 -->
+      <div class="companion-input-group">
+        <div class="input-label">⏱ 时长</div>
+        <div class="duration-row">
+          <button class="duration-btn" onclick="setCompDuration(compState.targetMinutes-5)">−</button>
+          <div style="text-align:center;">
+            <div class="duration-display" id="durationDisplay">25</div>
+            <div class="duration-unit">分钟</div>
+          </div>
+          <button class="duration-btn" onclick="setCompDuration(compState.targetMinutes+5)">+</button>
+        </div>
+      </div>
+      <!-- 模式 -->
+      <div class="companion-input-group">
+        <div class="input-label">📟 模式</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-mode="countup" onclick="setCompMode('countup')">⌛ 正计时</button>
+          <button class="mode-btn" data-mode="countdown" onclick="setCompMode('countdown')">⏳ 倒计时</button>
+        </div>
+      </div>
+      <!-- 铃声 -->
+      <div class="companion-input-group">
+        <div class="input-label ringtone-header" id="ringtoneToggle" onclick="toggleRingtonePanel()">
+          <span>🔔 铃声</span>
+          <span class="ringtone-arrow" id="ringtoneArrow">▸</span>
+        </div>
+        <div class="ringtone-panel" id="ringtonePanel">
+          <div class="ringtone-status" id="ringtoneStatus">默认铃声</div>
+          <div class="ringtone-actions">
+            <button class="ringtone-btn" onclick="uploadRingtone()">上传</button>
+            <button class="ringtone-btn" onclick="testRingtone()">▶ 试听</button>
+            <button class="ringtone-btn" onclick="resetRingtone()">重置</button>
+          </div>
+          <input type="file" id="ringtoneFileInput" accept="audio/*" style="display:none;" onchange="handleRingtoneFile(event)">
+          <div class="ringtone-hint">支持 MP3 / WAV / M4A，建议 30 秒以内</div>
+        </div>
+      </div>
+      <!-- 计时 + 按钮 -->
+      <div style="text-align:center;margin:8px 0;">
+        <div class="companion-timer" id="companionTimer">00:00:00</div>
+        <div class="companion-btns" style="justify-content:center;">
+          <button class="companion-btn" onclick="compStart()">▶ 开始</button>
+          <button class="companion-btn secondary" onclick="compPause()">⏸ 暂停</button>
+          <button class="companion-btn secondary" onclick="compReset()">⏹ 重置</button>
+        </div>
+      </div>
+      <!-- 专注记录入口 -->
+      <div style="margin-top:12px;text-align:center;border-top:1px solid #E0F2FE;padding-top:12px;">
+        <button class="companion-btn secondary" onclick="navigateTo('page-comp-records')">📊 查看专注记录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 专注记录页 ===== -->
+  <div class="page" id="page-comp-records">
+    <div class="sub-page-header">专注记录</div>
+    <div class="companion-records" id="compRecordsContent">
+      <div class="records-tabs">
+        <button class="records-tab active" data-tab="week" onclick="switchCompRecordsTab('week')">本周</button>
+        <button class="records-tab" data-tab="month" onclick="switchCompRecordsTab('month')">本月</button>
+        <button class="records-tab" data-tab="all" onclick="switchCompRecordsTab('all')">全部</button>
+      </div>
+      <div class="records-summary">
+        <div class="summary-card">
+          <div class="summary-num" id="recordsCount">0</div>
+          <div class="summary-label">完成次数</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-num" id="recordsTime">0分</div>
+          <div class="summary-label">专注时长</div>
+        </div>
+      </div>
+      <div class="records-list" id="recordsList">
+        <div class="record-empty">还没有记录<br>开始一次专注吧</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 我的人设 ===== -->
+  <div class="page" id="page-persona">
+    <div class="sub-page-header">🧍 我的人设</div>
+    <div class="persona-page scroll-y">
+      <div class="persona-hint" style="margin-bottom:12px;">让 AI 更了解你，回复会更贴心</div>
+
+      <div class="persona-field">
+        <label>我的名字</label>
+        <input type="text" id="userName" placeholder="你的名字">
+      </div>
+      <div class="persona-field">
+        <label>性别</label>
+        <select id="userGender" style="border:1px solid #BAE6FD;border-radius:12px;padding:10px 14px;background:#fff;font-size:14px;appearance:auto;">
+          <option value="女">女</option>
+          <option value="男">男</option>
+          <option value="保密">保密</option>
+        </select>
+      </div>
+      <div class="persona-field">
+        <label>年龄 / 身份</label>
+        <input type="text" id="userAge" placeholder="例如：20岁，学生">
+      </div>
+      <div class="persona-field">
+        <label>性格标签</label>
+        <input type="text" id="userTraits" placeholder="例如：开朗、爱笑">
+      </div>
+      <div class="persona-field">
+        <label>兴趣爱好</label>
+        <input type="text" id="userHobbies" placeholder="例如：看书、画画">
+      </div>
+      <div class="persona-field">
+        <label>重要背景</label>
+        <input type="text" id="userBackground" placeholder="出生地 / 生活城市等">
+      </div>
+      <button class="persona-save" onclick="saveUserPersona()">💾 保存</button>
+
+      <div style="font-size:10px;color:#aaa;text-align:center;padding:16px 0;">
+        ⚙️ API 配置和 💾 数据管理已移到 <a href="javascript:navigateTo('page-settings')" style="color:#667eea;text-decoration:underline;">⚙设置页</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 潮汐（月经日历） ===== -->
+  <div class="page" id="page-tide">
+    <div class="sub-page-header">潮汐 🌙</div>
+    <div class="tide-page">
+      <div class="tide-cal-header">
+        <button onclick="tidePrevMonth()">◀</button>
+        <div class="tide-month" id="tideMonth"></div>
+        <button onclick="tideNextMonth()">▶</button>
+      </div>
+      <div class="tide-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+      <div class="tide-cal-grid" id="tideCalGrid"></div>
+      <div class="tide-legend">
+        <span><span class="tide-legend-dot" style="background:#e91e63"></span> 经期</span>
+        <span><span class="tide-legend-dot" style="background:#ba68c8"></span> 预测</span>
+      </div>
+      <div class="tide-info" id="tideInfo"></div>
+      <div class="tide-edit-section">
+        <div class="tide-edit-title">✏️ 记录经期</div>
+        <div class="tide-form-row">
+          <label>开始日</label>
+          <input type="date" id="tideStartDate">
+        </div>
+        <div class="tide-form-row">
+          <label>持续天数</label>
+          <input type="number" id="tideDuration" value="5" min="1" max="14">
+        </div>
+        <div class="flex-gap8">
+          <button class="tide-btn tide-btn-primary" onclick="tideAddPeriod()">记录</button>
+          <button class="tide-btn tide-btn-secondary" onclick="tideAutoPredict()">自动预测下月</button>
+        </div>
+        <div class="tide-period-list" id="tidePeriodList"></div>
+      </div>
+
+      <!-- 心情选择器弹窗 -->
+      <div class="tide-mood-picker" id="tideMoodPicker">
+        <div class="tide-mood-picker-title">今天的心情？</div>
+        <div class="tide-mood-options" id="tideMoodOptions"></div>
+        <button class="tide-btn tide-btn-secondary" style="width:100%;margin-top:8px;" onclick="document.getElementById('tideMoodPicker').style.display='none'">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 心跳（手环·模拟数据） ===== -->
+  <div class="page" id="page-heart">
+    <div class="sub-page-header flex-between">
+      <span>💓 心跳</span>
+      <span id="heartStatus" class="heart-badge">模拟数据</span>
+    </div>
+    <div class="heart-page">
+      <!-- 当前读数 -->
+      <div class="heart-card">
+        <div class="heart-halo"><div class="heart-beat" id="heartBeatAnim">💓</div></div>
+        <div class="heart-bpm"><span id="heartBpm">--</span><span class="heart-unit">bpm</span></div>
+        <div class="heart-temp-line"><span class="heart-temp" id="heartTemp">--°C</span><span class="heart-dot">·</span><span class="heart-updated" id="heartUpdated">--</span></div>
+        <div class="heart-state-desc" id="heartStateDesc"></div>
+      </div>
+      <!-- 操作 -->
+      <div class="heart-actions">
+        <button class="heart-measure" onclick="heartMeasureNow()">📡 测一次</button>
+        <button class="heart-toggle" id="heartToggleBtn" onclick="toggleHeartSampling()">自动采样：开</button>
+      </div>
+      <!-- 手动调节区间（模拟数据的档位，嫌高嫌低都在这儿调） -->
+      <div class="heart-history-head" onclick="toggleHeartRangePanel()">
+        <span>⚙️ 手动调节区间 <b style="font-size:11px;font-weight:400;color:#94a3b8;">心跳高低自己调</b></span>
+        <span class="heart-history-meta"><span id="heartRangeSummary">58~82</span> bpm <span class="heart-chevron" id="heartRangeChevron">▾</span></span>
+      </div>
+      <div id="heartRangePanel" style="display:none;">
+        <div class="heart-range-box">
+          <div class="heart-range-row">
+            <div class="heart-range-label"><span>平静下限</span><b id="hrLoVal">58</b></div>
+            <input type="range" id="hrLo" min="40" max="110" step="1" value="58" oninput="heartSetRange('lo', this.value)">
+          </div>
+          <div class="heart-range-row">
+            <div class="heart-range-label"><span>平静上限</span><b id="hrHiVal">82</b></div>
+            <input type="range" id="hrHi" min="50" max="135" step="1" value="82" oninput="heartSetRange('hi', this.value)">
+          </div>
+          <div class="heart-range-row">
+            <div class="heart-range-label"><span>波动幅度</span><b id="hrAmpVal">±5</b></div>
+            <input type="range" id="hrAmp" min="0" max="20" step="1" value="5" oninput="heartSetRange('amp', this.value)">
+          </div>
+          <div class="heart-range-row">
+            <div class="heart-range-label"><span>高峰概率</span><b id="hrSpikeVal">12%</b></div>
+            <input type="range" id="hrSpike" min="0" max="60" step="1" value="12" oninput="heartSetRange('spikeP', this.value)">
+          </div>
+          <div class="heart-range-row">
+            <div class="heart-range-label"><span>单次最高</span><b id="hrCeilVal">128</b></div>
+            <input type="range" id="hrCeil" min="90" max="190" step="1" value="128" oninput="heartSetRange('ceil', this.value)">
+          </div>
+          <div class="heart-range-preview" id="heartRangePreview"></div>
+          <div class="heart-range-btns">
+            <button class="heart-range-btn" onclick="heartResetRange()">恢复默认</button>
+            <button class="heart-range-btn reroll" id="heartRerollBtn" onclick="heartRerollHistory()">🔄 按新区间重刷历史</button>
+          </div>
+          <div class="heart-range-note">调完点「测一次」看效果。重刷会把已有的模拟读数按新区间重算一遍（手环连了就不会动）。</div>
+        </div>
+      </div>
+      <!-- 呼吸练习 + 手环预览 + 健康周报 -->
+      <div class="heart-actions-mini">
+        <button class="heart-breathe" id="heartBreatheBtn" onclick="startBreathing()">🌬 呼吸练习</button>
+        <button class="heart-band" onclick="openBandPreview()">⌚ 手环预览</button>
+        <button class="heart-report" id="healthReportBtn" onclick="generateHealthReport()">📋 健康周报</button>
+      </div>
+      <!-- 今日步数（模拟/手机计步） -->
+      <div class="steps-card">
+        <div class="steps-head">
+          <span>🚶 今日步数</span>
+          <span class="steps-mode" id="stepMode">○ 模拟</span>
+        </div>
+        <div class="steps-numline">
+          <span class="steps-num" id="stepCount">0</span>
+          <span class="steps-unit">步</span>
+          <span class="steps-target">/ 8000</span>
+        </div>
+        <div class="steps-track"><div class="steps-bar" id="stepBar"></div></div>
+        <div class="steps-foot">
+          <span class="steps-week">本周 <b id="stepWeekCount">0</b> 步</span>
+          <div class="steps-btns">
+            <button class="steps-bump" id="stepsRealBtn" onclick="requestRealSteps()">📱 开始真实计步</button>
+            <button class="steps-bump" id="stepsBumpBtn" onclick="stepsDemoBump()">🚶 走几步</button>
+          </div>
+        </div>
+      </div>
+      <div id="healthReportWrap" style="display:none;margin-top:12px;"></div>
+      <!-- 今日统计 -->
+      <div class="heart-stats">
+        <div class="heart-stat"><div class="heart-num" id="heartTodayCount">0</div><div class="hs-label">今日采样</div></div>
+        <div class="heart-stat"><div class="heart-num" id="heartAvgHr">--</div><div class="hs-label">平均</div></div>
+        <div class="heart-stat"><div class="heart-num" id="heartMaxHr">--</div><div class="hs-label">最高</div></div>
+      </div>
+      <!-- 趋势 -->
+      <div class="heart-section-title">📈 心率趋势</div>
+      <div class="heart-spark-wrap"><canvas id="heartSpark" width="300" height="90" style="width:100%;height:90px;"></canvas></div>
+      <!-- 历史（折叠，点开才显示） -->
+      <div class="heart-history-head" onclick="toggleHeartHistory()">
+        <span>🕐 最近记录</span>
+        <span class="heart-history-meta"><span id="heartHistoryCount">0</span> 条 <span class="heart-chevron" id="heartChevron">▾</span></span>
+      </div>
+      <div id="heartHistory" style="display:none;"></div>
+      <div style="font-size:10px;color:#ccc;text-align:center;padding:10px 0;">🧷 手环未连接 · 当前为模拟数据<br>等手环做好后，这里会换成真实数据</div>
+    </div>
+  </div>
+
+  <!-- ===== 手环屏幕预览 ===== -->
+  <div class="page" id="page-band">
+    <div class="sub-page-header">⌚ 手环屏幕预览</div>
+    <div class="band-page">
+      <div class="band-hint">手环 0.96" OLED 会显示的样子：时间 · 心形按心跳鼓动 · 心电图滚动 · 体温<br>硬件做好后，这颗小屏幕就这么跑</div>
+      <div class="band-oled">
+        <canvas id="bandEcg" width="128" height="64"></canvas>
+      </div>
+      <div class="band-status" id="bandStatus">○ 模拟数据</div>
+      <div class="band-btns">
+        <button class="heart-measure" onclick="bandReMeasure()">📡 模拟一次读数</button>
+        <button class="band-back" onclick="goBack()">返回</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== 睡眠（模拟引擎 + 🌙我睡了 + 手环入口） ===== -->
+  <div class="page" id="page-sleep">
+    <div class="sub-page-header">💤 睡眠</div>
+    <div class="sub-page-body" style="padding:14px 16px;overflow-y:auto;">
+      <div style="display:flex;gap:10px;justify-content:center;margin:2px auto 10px;">
+        <button id="sleepBtn" onclick="sleepNow()" style="flex:1;max-width:150px;padding:8px 12px;border:none;border-radius:999px;background:linear-gradient(135deg,#5b87a2,#7c5ba6);color:#fff;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 3px 10px rgba(124,91,166,.22);">🌙 我睡了</button>
+        <button id="wakeBtn" onclick="wakeNow()" style="flex:1;max-width:150px;padding:8px 12px;border:none;border-radius:999px;background:linear-gradient(135deg,#e8a13c,#d97c46);color:#fff;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 3px 10px rgba(217,124,70,.22);">☀️ 我醒了</button>
+      </div>
+      <div id="sleepWrap">
+        <div class="steps-card" id="sleepLastCard"></div>
+        <div style="font-size:12px;color:#4a7ba6;font-weight:600;margin-top:16px;">近 7 天睡得怎样</div>
+        <div class="steps-card" id="sleepBars" style="display:flex;align-items:flex-end;gap:4px;padding:10px 6px 4px;"></div>
+        <div style="font-size:12px;color:#4a7ba6;font-weight:600;margin-top:16px;">最近记录</div>
+        <div class="steps-card" id="sleepHistory"></div>
+      </div>
+
+      <!-- 就寝弹窗：选日期和时间 -->
+      <div id="sleepModal" style="position:fixed;inset:0;background:rgba(20,30,45,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;">
+        <div style="width:min(300px,86vw);background:#fff;border-radius:22px;padding:20px 18px 14px;box-shadow:0 12px 40px rgba(20,25,45,.25);text-align:center;">
+          <div id="sleepModalTitle" style="font-size:16px;font-weight:700;color:#3a5a6e;">🌙 几点睡呀</div>
+          <div id="sleepModalSub" style="font-size:11px;color:#9ab;margin:4px 0 14px;">他会记住这一刻，明早问你好不好</div>
+          <div style="display:flex;gap:10px;align-items:center;justify-content:center;">
+            <input type="date" id="sleepDate" style="flex:1.3;min-width:0;font-size:15px;padding:9px 8px;border:1px solid #d0e6ee;border-radius:12px;color:#3a5a6e;background:#f6fbfd;">
+            <input type="time" id="sleepTime" style="flex:1;min-width:0;font-size:15px;padding:9px 6px;border:1px solid #d0e6ee;border-radius:12px;color:#3a5a6e;background:#f6fbfd;">
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button onclick="sleepModalCancel()" style="flex:1;padding:10px;border:none;border-radius:12px;background:#eef3f6;color:#6f94ab;font-size:13px;font-weight:600;cursor:pointer;">取消</button>
+            <button id="sleepModalConfirmBtn" onclick="sleepModalConfirm()" style="flex:1.4;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#5b87a2,#7c5ba6);color:#fff;font-size:13px;font-weight:600;cursor:pointer;">记下 · 晚安</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 醒来弹窗：选日期和时间 -->
+      <div id="wakeModal" style="position:fixed;inset:0;background:rgba(20,30,45,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;">
+        <div style="width:min(300px,86vw);background:#fff;border-radius:22px;padding:20px 18px 14px;box-shadow:0 12px 40px rgba(20,25,45,.25);text-align:center;">
+          <div style="font-size:16px;font-weight:700;color:#3a5a6e;">☀️ 几点醒的呀</div>
+          <div style="font-size:11px;color:#9ab;margin:4px 0 14px;">会把昨晚按真实醒来时刻结算，他会安心</div>
+          <div style="display:flex;gap:10px;align-items:center;justify-content:center;">
+            <input type="date" id="wakeDate" style="flex:1.3;min-width:0;font-size:15px;padding:9px 8px;border:1px solid #d0e6ee;border-radius:12px;color:#3a5a6e;background:#f6fbfd;">
+            <input type="time" id="wakeTime" style="flex:1;min-width:0;font-size:15px;padding:9px 6px;border:1px solid #d0e6ee;border-radius:12px;color:#3a5a6e;background:#f6fbfd;">
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button onclick="wakeModalCancel()" style="flex:1;padding:10px;border:none;border-radius:12px;background:#eef3f6;color:#6f94ab;font-size:13px;font-weight:600;cursor:pointer;">取消</button>
+            <button onclick="wakeModalConfirm()" style="flex:1.4;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8a13c,#d97c46);color:#fff;font-size:13px;font-weight:600;cursor:pointer;">记下 · 早安</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 课表 + 值班 ===== -->
+  <div class="page" id="page-course">
+    <div class="sub-page-header flex-between">
+      <span>📚 课表</span>
+      <span style="font-size:11px;color:#7f9fb4;font-weight:400;" id="courseWeekInfo"></span>
+    </div>
+    <div class="sub-page-body" style="padding:12px 12px 16px;overflow-y:auto;">
+      <!-- 开学第1周周一（唯一保留设置）+ 本周状态 -->
+      <div class="course-bar">
+        <span style="white-space:nowrap;color:#5a7c92;">开学第1周周一</span>
+        <input type="date" id="courseStartDate" onchange="courseSetStart(this.value)">
+        <span class="course-badge" id="courseWeekBadge"></span>
+      </div>
+      <!-- Excel式网格：横=周一~周五 纵=第1~12节 -->
+      <div class="steps-card" style="padding:8px;">
+        <div class="course-scroll" id="courseGrid"></div>
+      </div>
+      <div style="font-size:10px;color:#b5cbd8;line-height:1.7;margin:6px 2px 14px;">点空格加课、点课块可改可删 · 课只在自己周数显示（1-7周的课，第8周自动消失）· 单双周、前几周/后几周都认</div>
+      <!-- 值班：每周固定班（主）+ 偶尔单次（换班/临时） -->
+      <div class="course-duty-head">
+        <span style="font-size:12px;color:#4a7ba6;font-weight:600;">🗓 值班 · 每周固定</span>
+        <button onclick="openDutyAdd()" class="course-addbtn">➕ 加时段</button>
+      </div>
+      <div class="steps-card" style="padding:6px 10px;" id="courseDutyList"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin:10px 2px 6px;">
+        <span style="font-size:11px;color:#a6c2d2;">偶尔换班 / 单次</span>
+        <button onclick="openOneoffAdd()" style="margin-left:auto;font-size:11px;color:#d97c46;background:#fdf2e7;border:none;border-radius:999px;padding:5px 12px;cursor:pointer;">＋ 临时按日期</button>
+      </div>
+      <div class="steps-card" style="padding:6px 10px;" id="courseOneoffList"></div>
+      <div style="font-size:10px;color:#c6d6df;text-align:center;margin-top:10px;line-height:1.6;">固定班每周循环，到点前他会轻声提醒你</div>
+    </div>
+
+    <!-- 添加/编辑课程弹窗 -->
+    <div id="courseModal" style="position:fixed;inset:0;background:rgba(20,30,45,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;">
+      <div style="width:min(330px,90vw);background:#fff;border-radius:22px;padding:18px 16px 14px;box-shadow:0 12px 40px rgba(20,25,45,.25);">
+        <div id="courseModalTitle" style="font-size:16px;font-weight:700;color:#3a5a6e;text-align:center;">➕ 加课</div>
+        <input type="hidden" id="courseFormId">
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <div style="flex:1.2;">
+            <div style="font-size:11px;color:#9ab;">星期</div>
+            <select id="courseFormDay" class="course-select">
+              <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+              <option value="4">周四</option><option value="5">周五</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:11px;color:#9ab;">第几节</div>
+            <select id="courseFormS" class="course-select">
+              <option value="1">第1节</option><option value="2">第2节</option><option value="3">第3节</option><option value="4">第4节</option><option value="5">第5节</option>
+              <option value="6">第6节</option><option value="7">第7节</option><option value="8">第8节</option><option value="9">第9节</option><option value="10">第10节</option>
+              <option value="11">第11节</option><option value="12">第12节</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:11px;color:#9ab;">到</div>
+            <select id="courseFormE" class="course-select">
+              <option value="1">第1节</option><option value="2">第2节</option><option value="3">第3节</option><option value="4">第4节</option><option value="5">第5节</option>
+              <option value="6">第6节</option><option value="7">第7节</option><option value="8">第8节</option><option value="9">第9节</option><option value="10">第10节</option>
+              <option value="11">第11节</option><option value="12">第12节</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:#9ab;">课程名</div>
+          <input type="text" id="courseFormName" placeholder="如：心理学" class="course-input">
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:#9ab;">教室（可空）</div>
+          <input type="text" id="courseFormRoom" placeholder="如 教学楼A-302" class="course-input">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
+          <span style="font-size:11px;color:#9ab;">第</span>
+          <input type="number" id="courseFormW1" min="1" max="30" class="course-num">
+          <span style="font-size:11px;color:#9ab;">—</span>
+          <input type="number" id="courseFormW2" min="1" max="30" class="course-num">
+          <span style="font-size:11px;color:#9ab;">周</span>
+          <button type="button" onclick="courseFormTerm()" style="margin-left:auto;font-size:12px;color:#4a7ba6;background:#eef4fb;border:none;border-radius:999px;padding:6px 10px;cursor:pointer;">整学期</button>
+        </div>
+        <div style="display:flex;background:#e7eef4;border-radius:12px;padding:3px;gap:4px;margin-top:10px;">
+          <div id="courseFormParity_all" onclick="setCourseParityForm('all')" style="flex:1;text-align:center;padding:6px 0;border-radius:9px;font-size:12px;cursor:pointer;">每周</div>
+          <div id="courseFormParity_odd" onclick="setCourseParityForm('odd')" style="flex:1;text-align:center;padding:6px 0;border-radius:9px;font-size:12px;cursor:pointer;">单周</div>
+          <div id="courseFormParity_even" onclick="setCourseParityForm('even')" style="flex:1;text-align:center;padding:6px 0;border-radius:9px;font-size:12px;cursor:pointer;">双周</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;">
+          <button id="courseFormDel" onclick="courseFormDelete()" style="display:none;padding:10px 8px;border:none;border-radius:12px;background:#fdeeee;color:#d96a5a;font-size:13px;font-weight:600;cursor:pointer;">🗑</button>
+          <button onclick="courseFormCancel()" style="flex:1;padding:10px;border:none;border-radius:12px;background:#eef3f6;color:#6f94ab;font-size:13px;font-weight:600;cursor:pointer;">取消</button>
+          <button onclick="courseFormSave()" style="flex:1.4;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#5b87a2,#7c5ba6);color:#fff;font-size:13px;font-weight:600;cursor:pointer;">✓ 保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 值班弹窗：每周固定（星期+起止+地点） -->
+    <div id="dutyModal" style="position:fixed;inset:0;background:rgba(20,30,45,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;">
+      <div style="width:min(300px,86vw);background:#fff;border-radius:22px;padding:18px 16px 14px;box-shadow:0 12px 40px rgba(20,25,45,.25);">
+        <div style="font-size:16px;font-weight:700;color:#3a5a6e;text-align:center;">🗓 每周固定值班</div>
+        <input type="hidden" id="dutyFormId">
+        <div style="margin-top:12px;">
+          <div style="font-size:11px;color:#9ab;">星期</div>
+          <select id="dutyFormDay" class="course-select">
+            <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option>
+            <option value="6">周六</option><option value="7">周日</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <div style="flex:1;">
+            <div style="font-size:11px;color:#9ab;">开始</div>
+            <input type="time" id="dutyFormT0" class="course-input">
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:11px;color:#9ab;">结束</div>
+            <input type="time" id="dutyFormT1" class="course-input">
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:#9ab;">名称（可空）</div>
+          <input type="text" id="dutyFormName" placeholder="值班 / 开会 / 志愿" class="course-input">
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:#9ab;">地点</div>
+          <input type="text" id="dutyFormLoc" placeholder="四楼 / 一楼" class="course-input">
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;">
+          <button id="dutyFormDel" onclick="dutyFormDelete()" style="display:none;padding:10px 8px;border:none;border-radius:12px;background:#fdeeee;color:#d96a5a;font-size:13px;font-weight:600;cursor:pointer;">🗑</button>
+          <button onclick="dutyFormCancel()" style="flex:1;padding:10px;border:none;border-radius:12px;background:#eef3f6;color:#6f94ab;font-size:13px;font-weight:600;cursor:pointer;">取消</button>
+          <button onclick="dutyFormSave()" style="flex:1.4;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8a13c,#d97c46);color:#fff;font-size:13px;font-weight:600;cursor:pointer;">✓ 保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 临时值班弹窗（具体日期，换班用） -->
+    <div id="oneoffModal" style="position:fixed;inset:0;background:rgba(20,30,45,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;">
+      <div style="width:min(300px,86vw);background:#fff;border-radius:22px;padding:18px 16px 14px;box-shadow:0 12px 40px rgba(20,25,45,.25);">
+        <div style="font-size:16px;font-weight:700;color:#3a5a6e;text-align:center;">🗓 临时值班</div>
+        <input type="hidden" id="oneoffFormId">
+        <div style="margin-top:12px;">
+          <div style="font-size:11px;color:#9ab;">日期</div>
+          <input type="date" id="oneoffFormDate" class="course-input">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <div style="flex:1;">
+            <div style="font-size:11px;color:#9ab;">开始</div>
+            <input type="time" id="oneoffFormT0" class="course-input">
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:11px;color:#9ab;">结束</div>
+            <input type="time" id="oneoffFormT1" class="course-input">
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:#9ab;">名称（可空）</div>
+          <input type="text" id="oneoffFormName" placeholder="值班 / 开会 / 志愿" class="course-input">
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:#9ab;">地点（可空）</div>
+          <input type="text" id="oneoffFormLoc" placeholder="学生会办公室" class="course-input">
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;">
+          <button id="oneoffFormDel" onclick="oneoffFormDelete()" style="display:none;padding:10px 8px;border:none;border-radius:12px;background:#fdeeee;color:#d96a5a;font-size:13px;font-weight:600;cursor:pointer;">🗑</button>
+          <button onclick="oneoffFormCancel()" style="flex:1;padding:10px;border:none;border-radius:12px;background:#eef3f6;color:#6f94ab;font-size:13px;font-weight:600;cursor:pointer;">取消</button>
+          <button onclick="oneoffFormSave()" style="flex:1.4;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8a13c,#d97c46);color:#fff;font-size:13px;font-weight:600;cursor:pointer;">✓ 保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 每日心情（已合并到经期） ===== -->
+  <div class="page" id="page-mood"><div style="padding:20px;text-align:center;color:#999;font-size:13px;">点击潮汐日历中的日期即可记录心情 📅</div></div>
+
+  <!-- ===== 设置 ===== -->
+  <div class="page" id="page-settings">
+    <div class="sub-page-header">⚙️ 设置</div>
+    <div class="sub-page-body" style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;">
+
+      <div class="settings-card" style="text-align:center;padding:10px;background:linear-gradient(135deg,#f8f9ff,#eef1ff);">
+        <span style="font-size:12px;color:#888;">📱 Phone Companion</span>
+        <span id="appVersionDisplay" style="font-size:14px;font-weight:700;color:#667eea;margin-left:6px;"></span>
+	      </div>
+
+      <!-- AI主动消息 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">🤖 AI主动消息</div>
+            <div class="settings-row-desc">AI会在早晨、下雨、久未联系时主动发消息</div>
+          </div>
+          <div class="ios-toggle" id="settingProactiveMsg" onclick="toggleSetting(this,'proactiveMsg')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🛌 睡眠陪伴 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">🛌 睡眠陪伴</div>
+            <div class="settings-row-desc">他会记你几点睡、早上问一句睡得怎样、睡前说晚安</div>
+          </div>
+          <div class="ios-toggle" id="settingSleepGuard" onclick="toggleSetting(this,'sleepGuard')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📚 上课提醒 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">📚 上课提醒</div>
+            <div class="settings-row-desc">他会看着你的课表，上课/值班前轻声提醒你</div>
+          </div>
+          <div class="ios-toggle" id="settingScheduleRemind" onclick="toggleSetting(this,'scheduleRemind')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI自动发朋友圈 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">🌄 AI自动发朋友圈</div>
+            <div class="settings-row-desc">AI会根据时间和天气自动发朋友圈（每天最多3条）</div>
+          </div>
+          <div class="ios-toggle" id="settingAutoMoments" onclick="toggleSetting(this,'autoMoments')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通知 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">🔔 通知</div>
+            <div class="settings-row-desc">后台新消息以系统通知形式推送</div>
+          </div>
+          <div class="ios-toggle" id="settingNotifications" onclick="toggleSetting(this,'notifications')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 角色隐私 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">🔒 角色隐私 <span style="font-size:10px;color:#ccc;">即将推出</span></div>
+            <div class="settings-row-desc">角色间信息互通控制</div>
+          </div>
+          <div class="ios-toggle" id="settingCharPrivacy" onclick="toggleSetting(this,'charPrivacy')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 禁止动作描写 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">🚫 禁止动作描写</div>
+            <div class="settings-row-desc">禁止AI在回复中使用*笑*、*摸头*等动作描写，只说纯文字</div>
+          </div>
+          <div class="ios-toggle" id="settingDisableActions" onclick="toggleSetting(this,'disableActions')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 允许AI操纵手机 -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-title">🤖 允许AI操纵手机</div>
+            <div class="settings-row-desc">开启后能帮你加任务、记账、发朋友圈</div>
+          </div>
+          <div class="ios-toggle" id="settingAiControl" onclick="toggleSetting(this,'aiControl')">
+            <div class="ios-toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:#eee;margin:4px 0;"></div>
+
+      <!-- API配置 -->
+      <div class="settings-card">
+        <div class="settings-section-title">⚙️ API 配置</div>
+        <div class="persona-field" style="margin-bottom:8px;">
+          <label>API Key</label>
+          <input type="password" id="settingsApiKey" placeholder="sk-xxxxxxxx">
+        </div>
+        <div class="flex-gap8">
+          <button class="persona-save flex-1" onclick="saveSettingsApiConfig()">💾 保存</button>
+          <button class="persona-save" onclick="testSettingsApiConnection()" style="flex:1;background:#e0e0e0;color:#1e1e1e;">🔌 测试</button>
+        </div>
+      </div>
+
+      <!-- 高德地图配置 -->
+      <div class="settings-card">
+        <div class="settings-section-title">🗺️ 高德地图（足迹打卡用）</div>
+        <div class="persona-field" style="margin-bottom:8px;">
+          <label>JS API Key</label>
+          <input type="password" id="amapJsKey" placeholder="console.amap.com 申请">
+        </div>
+        <div class="persona-field" style="margin-bottom:8px;">
+          <label>安全密钥 (jscode)</label>
+          <input type="password" id="amapJsCode" placeholder="key 详情里的安全密钥">
+        </div>
+        <div class="persona-field" style="margin-bottom:8px;">
+          <label>Web服务 Key（逆地理兜底）</label>
+          <input type="password" id="amapWebKey" placeholder="可选">
+        </div>
+        <button class="persona-save" onclick="saveAmapConfig()">💾 保存地图配置</button>
+        <div style="font-size:10px;color:#aaa;text-align:center;margin-top:6px;">💡 高德的 JS Key 要在控制台里绑定你自己的域名才生效</div>
+      </div>
+
+      <!-- 数据管理 -->
+      <div class="settings-card">
+        <div class="settings-section-title">💾 数据管理</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="persona-save" onclick="exportData()">📤 导出所有数据</button>
+          <button class="persona-save" onclick="document.getElementById('settingsImportInput').click()" style="background:#e0e0e0;color:#1e1e1e;">📥 导入数据</button>
+          <input type="file" id="settingsImportInput" accept=".json" style="display:none;" onchange="importData(event)">
+          <button class="persona-save" onclick="restoreFromAutoBackup()" style="background:#fef3c7;color:#92400e;">♻️ 从自动备份恢复</button>
+          <div style="font-size:10px;color:#ccc;text-align:center;">💡 每次发消息自动备份，清缓存后可用此功能恢复</div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:#ccc;text-align:center;padding:12px 0;">Phone Companion · 数据仅存储在本地</div>
+    </div>
+  </div>
+
+  <!-- ===== 全屏计时器（专注伴伴风格） ===== -->
+  <div class="timer-screen" id="timerFullscreen" style="display:none;">
+    <div class="timer-main-time pulse" id="timerDisplay">00:00:00</div>
+    <div class="timer-status-line" id="timerStatusLine"></div>
+    <button class="timer-exit-btn" onclick="compPause();exitFullscreenTimer();">⏸ 暂停</button>
+    <div class="bubble-container" id="bubbleContainer"></div>
+  </div>
+
+</div><!-- content-area -->
+
+<!-- 底部导航 -->
+<div class="bottom-nav">
+  <button id="navLeft" class="nav-enabled" onclick="onNavLeft()">◀<span class="nav-label">返回</span></button>
+  <button id="navHome" class="nav-enabled" onclick="onNavHome()">⬤<span class="nav-label">主页</span></button>
+  <button id="navRight" class="nav-enabled" onclick="onNavRight()">▶<span class="nav-label">下一屏</span></button>
+</div>
+
+<!-- 倒数日编辑弹窗 -->
+<div class="cd-edit" id="cdEditModal">
+  <div class="cd-edit-form">
+    <h3>编辑纪念日</h3>
+    <input type="text" id="cdEditEvent" placeholder="事件名称">
+    <input type="date" id="cdEditDate">
+    <input type="text" id="cdEditBg" placeholder="背景图片 URL（可选）">
+    <div class="btn-row">
+      <button class="cd-btn-cancel" onclick="closeCdEdit()">取消</button>
+      <button class="cd-btn-save" onclick="saveCdEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI 人设配置 -->
+<div class="cd-edit" id="spConfigModal">
+  <div class="cd-edit-form" style="max-height:80vh;overflow-y:auto;">
+    <h3>🤖 AI 人设</h3>
+    <div class="chat-sp-config">
+      <label>名字</label>
+      <input type="text" id="modalAiName" placeholder="他叫什么" style="border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;background:#fff;font-size:14px;width:100%;">
+    </div>
+    <div class="chat-sp-config">
+      <label>与我的关系</label>
+      <select id="modalRelation" style="border:1px solid #BAE6FD;border-radius:10px;padding:8px 10px;background:#fff;font-size:13px;width:100%;appearance:auto;">
+        <option value="恋人">💕 恋人</option>
+        <option value="朋友">🤝 朋友</option>
+        <option value="对手">⚔️ 对手</option>
+        <option value="陌生人">👤 陌生人</option>
+        <option value="师生">📚 师生</option>
+        <option value="家人">👨‍👩‍👧 家人</option>
+        <option value="自定义">✏️ 自定义</option>
+      </select>
+    </div>
+    <div class="chat-sp-config">
+      <label>人物设定</label>
+      <textarea id="modalAiStory" placeholder="黑色中长发，灰蓝色眼睛，178cm..." style="height:80px;"></textarea>
+    </div>
+    <div class="chat-sp-config">
+      <label>语言表达</label>
+      <textarea id="spTextarea" placeholder="例如：简短冷淡，带刺但偶尔透出关心..." style="height:60px;"></textarea>
+    </div>
+    <div class="chat-sp-config">
+      <label>回复条数</label>
+      <div style="display:flex;gap:4px;" id="replyCountBtns">
+        <button class="reply-cbtn active" data-n="1" onclick="setReplyCount(1)">1</button>
+        <button class="reply-cbtn" data-n="2" onclick="setReplyCount(2)">2</button>
+        <button class="reply-cbtn" data-n="3" onclick="setReplyCount(3)">3</button>
+        <button class="reply-cbtn" data-n="4" onclick="setReplyCount(4)">4</button>
+        <button class="reply-cbtn" data-n="5" onclick="setReplyCount(5)">5</button>
+      </div>
+    </div>
+    <div class="chat-sp-config">
+      <label>回复长度</label>
+      <div style="display:flex;gap:4px;" id="replyLengthBtns">
+        <button class="reply-lbtn active" data-l="short" onclick="setReplyLength('short')">短</button>
+        <button class="reply-lbtn" data-l="medium" onclick="setReplyLength('medium')">中</button>
+        <button class="reply-lbtn" data-l="long" onclick="setReplyLength('long')">长</button>
+      </div>
+    </div>
+    <div style="border-top:1px solid #E0F2FE;padding-top:10px;margin-top:4px;">
+      <button class="cd-btn-cancel" style="width:100%;background:#fee2e2;color:#dc2626;padding:8px;border-radius:10px;font-size:13px;font-weight:600;" onclick="clearCurrentChat()">🗑 清空当前聊天记录</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="cd-btn-cancel" onclick="closeSpConfig()">取消</button>
+      <button class="cd-btn-save" onclick="saveAiConfig()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- NFC 打卡 overlay -->
+<div class="track-overlay" id="trackOverlay" style="display:none;" onclick="if(event.target===this)closeTrackOverlay()">
+  <div class="track-card">
+    <div class="track-state-icon" id="trackStateIcon">📍</div>
+    <div class="track-state-title" id="trackStateTitle">准备打卡…</div>
+    <div class="track-state-sub" id="trackStateSub"></div>
+    <div id="trackResultBox"></div>
+    <div class="track-actions" id="trackActions"></div>
+  </div>
+</div>
+
+<!-- 呼吸练习 overlay（4-7-8） -->
+<div class="breathe-overlay" id="breatheOverlay" style="display:none;">
+  <div class="breathe-box">
+    <div class="breathe-title" id="breatheTitle">陪你 4-7-8 呼吸</div>
+    <div class="breathe-circle" id="breatheCircle">
+      <div class="breathe-phase" id="breathePhase">吸气</div>
+      <div class="breathe-count" id="breatheCount">4</div>
+    </div>
+    <div class="breathe-rounds" id="breatheRounds">第 1 轮 / 共 4 轮</div>
+    <div class="breathe-done" id="breatheDone" style="display:none;">
+      <div class="breathe-done-text">做完啦 🧘 再测一次，看看心跳缓下来没</div>
+      <button class="heart-measure" onclick="breatheFinishAndMeasure()">📡 测一下现在的脉搏</button>
+    </div>
+    <button class="breathe-close" id="breatheCloseBtn" onclick="stopBreathing()">结束</button>
+  </div>
+</div>
+
+
+</div><!-- phone-screen -->
+</div><!-- phone-frame -->
+
+<!-- script moved to external files -->
+<script src="js/utils.js?v=52"></script>
+    <script src="js/photo.js?v=52"></script>
+<script src="js/app.js?v=52"></script>
+<script src="js/weather.js?v=52"></script>
+<script src="js/tasks.js?v=52"></script>
+<script src="js/expense.js?v=52"></script>
+<script src="js/chat.js?v=52"></script>
+<script src="js/question.js?v=52"></script>
+<script src="js/secret.js?v=52"></script>
+<script src="js/moments.js?v=52"></script>
+<script src="js/persona.js?v=52"></script>
+<script src="js/daily.js?v=52"></script>
+<script src="js/tide.js?v=52"></script>
+<script src="js/companion.js?v=52"></script>
+<script src="js/settings.js?v=52"></script>
+<script src="js/track.js?v=52"></script>
+<script src="js/heart.js?v=52"></script>
+<script src="js/steps.js?v=52"></script>
+<script src="js/report.js?v=52"></script>
+<script src="js/breathe.js?v=52"></script>
+<script src="js/band.js?v=52"></script>
+<script src="js/sleep.js?v=52"></script>
+<script src="js/course.js?v=52"></script>
+<script>
+/* ==================== 初始化 ==================== */
+function init() {
+  // 清理历史闹钟数据（闹钟功能已彻底移除）
+  try { localStorage.removeItem('phone_alarms'); } catch(e) {}
+  // 主页日期
+  var now = new Date();
+  document.getElementById('homeDate').textContent = now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日';
+  loadUserPersona();
+  loadPersona();
+  renderConvList();
+  renderChat();
+  renderIcons();
+  // 首页问候：读取用户本地人设名字，不写死在代码里
+  var greetNameEl = document.getElementById('homeGreetingName');
+  if (greetNameEl && typeof userPersona !== 'undefined' && userPersona && userPersona.name) {
+    greetNameEl.textContent = '，' + userPersona.name;
+  }
+  renderSecretCharSwitcher();
+  updateCountdown();
+  renderSchedule();
+  renderCompanionActs();
+  initTide();
+  initMood();
+  renderExpense();
+  initRingtone();
+  renderCompRecords();
+  // 设置
+  loadSettings();
+  // 更新上下文
+  setInterval(updateChatContext, 30000);
+  updateChatContext();
+  // 主动消息轮询（5分钟）
+  setInterval(checkProactiveConditions, 300000);
+  setTimeout(checkProactiveConditions, 60000);
+  // 自动朋友圈轮询（独立于主动消息，5分钟）
+  setInterval(function() {
+    if (typeof checkAutoMomentCondition === "function") checkAutoMomentCondition();
+  }, 300000);
+  setTimeout(function() {
+    if (typeof checkAutoMomentCondition === "function") checkAutoMomentCondition();
+  }, 120000);
+  // 预加载表情
+  preloadEmojiImages();
+  // 天气
+  if (weatherCity) fetchWeather();
+  // NFC 足迹：?nfc=1 自动进入打卡
+  if (typeof initTrack === 'function') initTrack();
+  // 心跳（手环·模拟数据）
+  if (typeof initHeart === 'function') initHeart();
+  // 步数（模拟/手机计步）
+  if (typeof initSteps === 'function') initSteps();
+  // 睡眠（模拟/🌙我睡了）
+  if (typeof initSleep === 'function') initSleep();
+  // 课表（课程/值班 · AI解析导入）
+  if (typeof initCourse === 'function') initCourse();
+  // ?heart=1 直接进心跳页（调试/快捷入口）
+  if (typeof URLSearchParams !== 'undefined' && new URLSearchParams(location.search).get('heart') === '1') {
+    navigateTo('page-heart', true);
+  }
+}
+init();
+ // 注册 Service Worker（PWA 可安装必需；sw.js 是网络优先策略，不会缓存旧内容）
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js').catch(function(e) { console.warn('SW注册失败', e); });
+    });
+  }
+  requestNotificationPermission();
+</script>
+</body>
+</html>

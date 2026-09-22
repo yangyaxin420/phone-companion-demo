@@ -1,0 +1,761 @@
+/* ==================== 1. 基础重置 ==================== */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#111;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB',sans-serif;color:#1e1e1e;overflow:hidden;}
+::-webkit-scrollbar{display:none;}
+*{scrollbar-width:none;-ms-overflow-style:none;}
+button{border:none;background:none;cursor:pointer;font:inherit;color:inherit;}
+input,textarea,select{font:inherit;color:inherit;border:none;outline:none;background:transparent;}
+ul{list-style:none;}
+
+/* ==================== 2. 手机外壳 ==================== */
+.phone-frame{width:375px;height:700px;max-height:100dvh;border-radius:44px;background:#d0e6ee;position:relative;overflow:hidden;box-shadow:0 0 0 8px #222,0 0 40px rgba(0,0,0,.6),inset 0 0 2px rgba(255,255,255,.1);}
+.phone-screen{width:100%;height:100%;display:flex;flex-direction:column;position:relative;}
+
+/* 壁纸底纹 */
+.wallpaper{
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(170deg, #d0e6ee 0%, #ecf6f8 100%);
+  background-size:cover;
+}
+
+/* 手机端全屏模式 */
+@media (max-width:420px) {
+  .phone-frame{width:100vw;height:100dvh;border-radius:0;box-shadow:none;}
+  .status-bar{padding-top:env(safe-area-inset-top,0);height:auto;min-height:28px;padding-left:20px;padding-right:20px;}
+  .bottom-nav{padding-bottom:env(safe-area-inset-bottom,0);height:auto;min-height:50px;}
+}
+/* 平板/中等屏幕居中 */
+@media (min-width:421px) and (max-width:768px) {
+  .phone-frame{border-radius:30px;box-shadow:0 0 0 6px #222,0 0 30px rgba(0,0,0,.4);}
+}
+
+/* ==================== 3. 状态栏 ==================== */
+.status-bar{position:relative;z-index:2;height:32px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:500;color:#a6ccdd;flex-shrink:0;}
+.status-bar .sb-time{font-weight:600;}
+.status-bar .sb-icons{display:flex;gap:4px;font-size:10px;}
+
+/* ==================== 4. 内容区 ==================== */
+.content-area{flex:1;position:relative;overflow:hidden;}
+
+/* ==================== 5. 页面通用 & 过渡 ==================== */
+.page{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;background:transparent;}
+.page.active{display:flex;z-index:1;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes slideOutLeft{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@keyframes slideInLeft{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes slideOutRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+
+/* ==================== 5.1 布局工具类 ==================== */
+.flex-between{display:flex !important;justify-content:space-between !important;align-items:center !important;}
+.flex-gap8{display:flex !important;gap:8px !important;}
+.flex-gap6{display:flex !important;gap:6px !important;}
+.flex-1{flex:1 !important;}
+.txt-muted{font-size:13px;color:#888;background:none;border:none;cursor:pointer;}
+.txt-mid{font-size:12px;color:#888;margin-bottom:6px;font-weight:600;}
+.scroll-y{overflow-y:auto;}
+.anim-in-right{animation:slideInRight .28s ease forwards}
+.anim-out-left{animation:slideOutLeft .28s ease forwards}
+.anim-in-left{animation:slideInLeft .28s ease forwards}
+.anim-out-right{animation:slideOutRight .28s ease forwards}
+
+/* ==================== 6. 底部导航 ==================== */
+.bottom-nav{position:relative;z-index:2;height:52px;background:rgba(236,246,248,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:space-around;padding:0 16px;flex-shrink:0;}
+.bottom-nav button{padding:4px 12px;border-radius:20px;transition:all .15s;opacity:.5;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:18px;background:none;border:none;cursor:pointer;color:#a6ccdd;}
+.bottom-nav button:active{transform:scale(.92);}
+.bottom-nav button.nav-enabled{opacity:1;color:#4a7ba6;}
+.bottom-nav button.nav-disabled{opacity:.2;pointer-events:none;}
+.nav-label{font-size:9px;color:#a6ccdd;letter-spacing:.3px;}
+
+/* ==================== 7. 主页 ==================== */
+.main-content{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;padding:12px 16px 0;overflow-y:auto;}
+.greeting{padding:0 8px 10px;}
+.greeting .date{font-size:11px;color:#a6ccdd;font-weight:400;}
+.greeting .hello{font-size:18px;color:#4a7ba6;font-weight:600;margin-top:2px;}
+.greeting .hello span{color:#a6ccdd;font-weight:400;font-size:13px;}
+
+/* 天气卡片 */
+.home-cards-row{display:flex;gap:10px;padding:0 8px 12px;}
+.weather-card{flex:2;min-width:0;padding:10px 12px;background:#ecf6f8;border:1px solid #a6ccdd;border-radius:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(166,204,221,.35);cursor:pointer;transition:transform .1s;}
+.weather-card:active{transform:scale(.98);}
+.weather-info{font-size:11px;color:#a6ccdd;line-height:1.5;}
+.weather-info .temp{font-size:20px;font-weight:300;color:#4a7ba6;letter-spacing:-1px;}
+.weather-info .weather-detail{font-size:10px;color:#a6ccdd;margin-top:1px;}
+.weather-icon{font-size:22px;}
+.weather-loading{font-size:11px;color:#A0AEC0;}
+
+/* 图标网格 */
+.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 8px;padding:0 8px;}
+.app-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .1s;}
+.app-item:active{transform:scale(.92);}
+.app-item.dragging{opacity:.4;}
+.app-item.drag-over .app-icon{border-color:#A0AEC0;box-shadow:0 0 0 2px rgba(160,174,192,.3);transform:scale(1.05);}
+.app-icon{width:52px;height:52px;background:#ecf6f8;border:1px solid #a6ccdd;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(166,204,221,.3);position:relative;transition:box-shadow .2s;}
+.app-item:hover .app-icon{box-shadow:0 2px 10px rgba(166,204,221,.45);}
+.app-badge{position:absolute;top:-4px;right:-4px;background:#a6ccdd;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:500;}
+.app-name{font-size:11px;color:#a6ccdd;text-align:center;line-height:1.3;}
+
+/* 倒数日卡片 */
+.countdown-card{flex:1;min-width:0;background:#ecf6f8;border:1px solid #a6ccdd;border-radius:14px;padding:10px 12px;cursor:pointer;position:relative;overflow:hidden;transition:transform .1s;box-shadow:0 2px 12px rgba(166,204,221,.35);}
+.countdown-card:active{transform:scale(.98);}
+.countdown-card .cd-bg{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:.12;border-radius:14px;}
+.countdown-card .cd-content{position:relative;z-index:1;}
+.countdown-card .cd-event{font-size:12px;font-weight:500;color:#a6ccdd;margin-bottom:2px;}
+.countdown-card .cd-days{font-size:22px;font-weight:700;color:#4a7ba6;letter-spacing:-1px;}
+.countdown-card .cd-date{font-size:10px;color:#a6ccdd;margin-top:1px;}
+.countdown-card .cd-unit{font-size:14px;font-weight:400;color:#a6ccdd;margin-left:4px;}
+
+/* 倒数日编辑 */
+.cd-edit{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:100;}
+.cd-edit.show{display:flex;}
+.cd-edit-form{background:#F0F9FF;border-radius:20px;padding:24px;width:300px;display:flex;flex-direction:column;gap:12px;}
+.cd-edit-form h3{font-size:16px;text-align:center;}
+.cd-edit-form input{border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;background:#fff;font-size:14px;}
+.cd-edit-form .btn-row{display:flex;gap:10px;justify-content:center;}
+.cd-edit-form .btn-row button{padding:8px 24px;border-radius:12px;font-size:14px;font-weight:600;}
+.cd-btn-save{background:#1e1e1e;color:#F0F9FF;}
+.cd-btn-cancel{background:#BAE6FD;color:#1e1e1e;}
+
+/* ==================== 8. 子页面通用 ==================== */
+.sub-page-header{padding:14px 16px 10px;font-size:17px;font-weight:700;border-bottom:1px solid #E0F2FE;background:#F0F9FF;flex-shrink:0;}
+.page-header-blur{position:relative;z-index:2;background:rgba(255,255,255,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+.sub-page-body{flex:1;overflow-y:auto;padding:12px 16px;}
+
+/* ==================== 9. 任务清单 ==================== */
+.task-list{display:flex;flex-direction:column;gap:6px;}
+.task-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .1s;}
+.task-item:active{transform:scale(.98);}
+.task-item.done .task-text{text-decoration:line-through;color:#aaa;}
+.task-check{width:22px;height:22px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;font-size:12px;}
+.task-check.checked{background:#1e1e1e;border-color:#1e1e1e;color:#F0F9FF;}
+.task-text{flex:1;font-size:14px;}
+.task-del{font-size:16px;color:#ccc;cursor:pointer;padding:4px;}
+.task-del:hover{color:#e55;}
+.task-add-bar{display:flex;gap:8px;padding:10px 0;flex-shrink:0;}
+.task-add-bar input{flex:1;border:1px solid #BAE6FD;border-radius:12px;padding:10px 14px;background:#fff;font-size:14px;}
+.task-add-bar button{background:#1e1e1e;color:#F0F9FF;border-radius:12px;padding:10px 18px;font-weight:600;font-size:14px;}
+
+.ios-toggle{width:46px;height:28px;border-radius:14px;background:#BAE6FD;position:relative;cursor:pointer;transition:background .2s;}
+.ios-toggle.on{background:#4cd964;}
+.ios-toggle::after{content:'';position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s;}
+.ios-toggle.on::after{transform:translateX(18px);}
+/* ==================== 11. 聊天 ==================== */
+.chat-page{display:flex;flex-direction:column;height:100%;}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.chat-msg{max-width:75%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;word-break:break-word;}
+.chat-msg.ai{background:#E0F2FE;color:#1e1e1e;align-self:flex-start;border-bottom-left-radius:4px;}
+.chat-msg.user{background:#1e1e1e;color:#F0F9FF;align-self:flex-end;border-bottom-right-radius:4px;}
+.chat-msg.system{background:transparent;color:#999;align-self:center;font-size:12px;padding:4px 10px;max-width:90%;text-align:center;}
+.chat-typing{align-self:flex-start;padding:10px 14px;background:#E0F2FE;border-radius:16px;border-bottom-left-radius:4px;display:none;gap:4px;align-items:center;}
+.chat-typing.show{display:flex;}
+.chat-typing span{width:6px;height:6px;border-radius:50%;background:#999;animation:typingDot .6s infinite alternate;}
+.chat-typing span:nth-child(2){animation-delay:.15s;}
+.chat-typing span:nth-child(3){animation-delay:.3s;}
+@keyframes typingDot{from{opacity:.3;transform:translateY(0)}to{opacity:1;transform:translateY(-4px)}}
+.chat-input-bar{display:flex;gap:6px;padding:8px 14px;border-top:1px solid #E0F2FE;background:#F0F9FF;flex-shrink:0;align-items:flex-end;position:relative;}
+.chat-context-bar{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;background:#E0F2FE;font-size:11px;color:#888;cursor:pointer;flex-shrink:0;border-top:1px solid #E0F2FE;}
+.chat-context-detail{padding:8px 14px;background:#E0F2FE;font-size:12px;color:#666;line-height:1.6;max-height:120px;overflow-y:auto;flex-shrink:0;}
+.chat-input-bar textarea{flex:1;border:1px solid #BAE6FD;border-radius:14px;padding:8px 12px;background:#fff;font-size:14px;resize:none;max-height:80px;min-height:36px;line-height:1.4;}
+.chat-send-btn{background:#1e1e1e;color:#F0F9FF;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.chat-sp-config{margin-top:8px;padding:10px;background:#fff;border-radius:10px;border:1px solid #E0F2FE;}
+.chat-sp-config textarea{width:100%;height:50px;border:1px solid #BAE6FD;border-radius:8px;padding:8px;font-size:12px;resize:none;background:#F0F9FF;}
+.chat-sp-config label{font-size:11px;color:#888;display:block;margin-bottom:4px;}
+.chat-quick-btn{padding:6px 14px;border-radius:10px;background:#E0F2FE;font-size:12px;font-weight:600;color:#1e1e1e;}
+
+/* 回复模式弹窗 */
+.reply-mode-popup{position:absolute;bottom:100%;left:0;right:0;background:#F0F9FF;border-top:1px solid #BAE6FD;border-radius:16px 16px 0 0;padding:14px 14px 10px;display:none;flex-direction:column;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.1);}
+.reply-mode-popup.show{display:flex;}
+.reply-cbtn,.reply-lbtn{padding:6px 14px;border-radius:10px;background:#E0F2FE;border:none;font-size:13px;font-weight:600;cursor:pointer;color:#888;transition:all .15s;flex:1;text-align:center;}
+.reply-cbtn.active,.reply-lbtn.active{background:#BAE6FD;color:#0369a1;}
+.reply-cbtn:active,.reply-lbtn:active{transform:scale(.95);}
+
+/* ==================== 表情面板 ==================== */
+.emoji-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:0 6px;flex-shrink:0;line-height:1;border-radius:8px;transition:background .15s;}
+.emoji-btn:active{background:#E0F2FE;}
+.emoji-panel{position:absolute;bottom:100%;left:0;right:0;background:#F0F9FF;border-top:1px solid #BAE6FD;border-radius:16px 16px 0 0;padding:12px 10px 8px;display:none;flex-direction:column;max-height:260px;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.1);}
+.emoji-panel.show{display:flex;}
+.emoji-panel-tabs{display:flex;gap:4px;margin-bottom:10px;padding:2px;background:#E0F2FE;border-radius:10px;padding:3px;}
+.emoji-tab{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;background:transparent;cursor:pointer;border:none;color:#888;transition:all .15s;}
+.emoji-tab.active{background:#fff;color:#1e1e1e;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;overflow-y:auto;flex:1;padding:2px 0;-webkit-overflow-scrolling:touch;}
+.emoji-grid-item{font-size:24px;padding:6px 2px;text-align:center;cursor:pointer;border-radius:8px;transition:all .1s;line-height:1.2;}
+.emoji-grid-item:hover{background:#E0F2FE;}
+.emoji-grid-item:active{transform:scale(1.2);background:#BAE6FD;}
+.emoji-custom-bar{display:flex;gap:6px;padding-top:8px;border-top:1px solid #BAE6FD;align-items:center;}
+.emoji-custom-bar input{flex:1;border:1px solid #BAE6FD;border-radius:10px;padding:7px 12px;font-size:13px;background:#fff;}
+.emoji-custom-bar button{padding:7px 14px;border-radius:10px;background:#1e1e1e;color:#F0F9FF;font-size:12px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;}
+.emoji-custom-bar button:active{opacity:.8;}
+.emoji-manage{display:flex;flex-wrap:wrap;gap:4px;padding:4px 0;}
+.emoji-manage-item{position:relative;display:inline-block;}
+.emoji-manage-item .emoji-del{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#e55;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;line-height:1;}
+.emoji-msg{font-size:32px;line-height:1.3;}
+.chat-msg.user.emoji-only{background:transparent;padding:4px 8px;}
+.chat-msg.ai.emoji-only{background:transparent;padding:4px 8px;}
+.emoji-img-msg{max-width:120px;max-height:120px;border-radius:12px;display:block;}
+.photo-msg{width:100%;max-width:200px;max-height:260px;object-fit:cover;border-radius:12px;display:block;margin-top:4px;}
+.chat-msg.user.emoji-img-only{background:transparent;padding:4px 8px;}
+.chat-msg.ai.emoji-img-only{background:transparent;padding:4px 8px;}
+.emoji-img-item{width:56px;height:56px;border-radius:10px;overflow:hidden;cursor:pointer;position:relative;border:2px solid #E0F2FE;transition:border-color .15s;}
+.emoji-img-item:hover{border-color:#bbb;}
+.emoji-img-item:active{transform:scale(.92);}
+.emoji-img-item img{width:100%;height:100%;object-fit:cover;}
+.emoji-img-item .emoji-del{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#e55;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #F0F9FF;line-height:1;}
+.emoji-custom-section{margin-top:8px;border-top:1px solid #BAE6FD;padding-top:8px;}
+.emoji-custom-section-title{font-size:11px;color:#999;margin-bottom:6px;font-weight:600;}
+.emoji-img-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.emoji-add-btn{width:56px;height:56px;border-radius:10px;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;font-size:22px;color:#bbb;cursor:pointer;transition:all .15s;}
+.emoji-add-btn:hover{border-color:#999;color:#999;}
+.emoji-add-btn:active{transform:scale(.95);}
+.emoji-add-actions{display:flex;gap:8px;margin-top:4px;}
+.emoji-add-actions button{flex:1;padding:8px;border-radius:10px;border:1px solid #BAE6FD;background:#fff;font-size:12px;cursor:pointer;}
+.emoji-add-actions button:active{background:#E0F2FE;}
+/* 聊天时间戳 */
+.chat-msg-time{font-size:10px;color:#bbb;margin-top:2px;display:none;}
+.chat-msg:hover .chat-msg-time,.chat-msg:last-child .chat-msg-time{display:block;}
+
+/* ==================== 14. 朋友圈 ==================== */
+.moments-list{display:flex;flex-direction:column;gap:10px;}
+.moment-card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.moment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.moment-user{font-size:13px;font-weight:600;}
+.moment-time{font-size:11px;color:#aaa;}
+.moment-content{font-size:14px;line-height:1.6;margin-bottom:8px;}
+.moment-actions{display:flex;gap:14px;align-items:center;}
+.moment-comments{background:#E0F2FE;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px;}
+.moment-comment-item{padding:3px 0;line-height:1.4;}
+.moment-reply-btn{font-size:11px;color:#999;cursor:pointer;margin-left:6px;display:none;}
+.moment-comment-item:hover .moment-reply-btn{display:inline;}
+.moment-reply-btn:active{color:#BAE6FD;}
+.moment-comment-item b{color:#1e1e1e;}
+.moment-like{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;color:#888;transition:color .15s;}
+.moment-like.liked{color:#e55;}
+.moment-like:active{transform:scale(.92);}
+.moment-comment{font-size:13px;color:#888;cursor:pointer;}
+
+/* ==================== 15. 陪伴计时 ==================== */
+.companion-page{display:flex;flex-direction:column;align-items:center;padding:16px;}
+.companion-activities{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:20px;}
+.companion-act-btn{padding:14px 8px;border-radius:14px;background:#E0F2FE;font-size:13px;font-weight:600;text-align:center;transition:all .15s;}
+.companion-act-btn:active{transform:scale(.95);}
+.companion-act-btn.selected{background:#1e1e1e;color:#F0F9FF;}
+.companion-timer{font-size:48px;font-weight:700;letter-spacing:2px;margin-bottom:20px;font-variant-numeric:tabular-nums;}
+.companion-btns{display:flex;gap:12px;}
+.companion-btn{padding:12px 28px;border-radius:14px;font-size:14px;font-weight:600;background:#1e1e1e;color:#F0F9FF;}
+.companion-btn.secondary{background:#BAE6FD;color:#1e1e1e;}
+.companion-btn:active{transform:scale(.95);}
+
+/* ==================== 16. 日程 ==================== */
+.schedule-page{padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+.schedule-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.schedule-item.done .schedule-text{text-decoration:line-through;color:#aaa;}
+.schedule-check{width:22px;height:22px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:12px;}
+.schedule-check.checked{background:#1e1e1e;border-color:#1e1e1e;color:#F0F9FF;}
+.schedule-text{flex:1;font-size:14px;line-height:1.4;}
+.schedule-time{font-size:11px;color:#999;white-space:nowrap;}
+.schedule-del{font-size:16px;color:#ccc;cursor:pointer;padding:4px;}
+.schedule-del:hover{color:#e55;}
+.schedule-date-group{font-size:13px;font-weight:700;color:#888;padding:8px 4px 4px;}
+.schedule-preview{background:#fff3e0;border-radius:12px;padding:12px;margin:6px 0;border-left:3px solid #ff9800;}
+.schedule-preview-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;}
+.schedule-preview-item span{flex:1;}
+.schedule-confirm-btn{padding:6px 14px;border-radius:10px;background:#1e1e1e;color:#F0F9FF;font-size:12px;font-weight:600;white-space:nowrap;}
+.schedule-confirm-btn:active{transform:scale(.95);}
+.schedule-edit-btn{background:#BAE6FD;color:#1e1e1e;margin-right:4px;}
+
+/* ==================== 17. 记账 ==================== */
+.expense-page{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+.expense-form{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.expense-form-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+.expense-form-row label{font-size:12px;color:#888;min-width:40px;}
+.expense-form-row input,.expense-form-row select{flex:1;border:1px solid #BAE6FD;border-radius:10px;padding:8px 10px;background:#fff;font-size:13px;appearance:auto;}
+.expense-cat-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.expense-cat-btn{padding:6px 14px;border-radius:10px;background:#E0F2FE;font-size:12px;cursor:pointer;transition:all .1s;}
+.expense-cat-btn:active{transform:scale(.95);}
+.expense-cat-btn.selected{background:#1e1e1e;color:#F0F9FF;}
+/* 记账三Tab */
+.expense-tabs{display:flex;gap:4px;background:#E0F2FE;border-radius:10px;padding:3px;margin:8px 16px 0;flex-shrink:0;}
+.expense-tab{padding:6px 0;flex:1;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .1s;text-align:center;background:transparent;color:#888;}
+.expense-tab.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#1e1e1e;}
+.expense-stats-tabs{display:flex;gap:4px;background:#E0F2FE;border-radius:10px;padding:3px;margin-bottom:8px;}
+.expense-stats-tab{padding:6px 0;flex:1;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .1s;text-align:center;background:transparent;color:#888;}
+.expense-stats-tab.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#1e1e1e;}
+
+/* 明细按天分组 */
+.expense-date-group{font-size:13px;font-weight:700;color:#555;padding:10px 0 4px;border-top:1px solid #E0F2FE;margin-top:4px;}
+.expense-date-group:first-child{border-top:none;margin-top:0;}
+.expense-date-summary{font-size:11px;color:#999;margin-bottom:6px;padding:0 4px;}
+.expense-detail-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fff;border-radius:10px;margin-bottom:4px;font-size:13px;}
+.expense-detail-item .edi-left{display:flex;gap:10px;align-items:center;}
+.expense-detail-item .edi-cat{font-weight:600;color:#555;min-width:40px;}
+.expense-detail-item .edi-note{color:#999;font-size:11px;}
+.expense-detail-item .edi-amount{font-weight:600;}
+.expense-detail-item .edi-amount.expense{color:#e76f51;}
+.expense-detail-item .edi-amount.income{color:#4caf50;}
+.expense-detail-item .edi-del{color:#ccc;cursor:pointer;padding:4px;font-size:14px;}
+.expense-detail-item .edi-del:hover{color:#e55;}
+.expense-summary{display:flex;gap:12px;justify-content:space-around;background:#fff;border-radius:14px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.expense-summary-item{text-align:center;}
+.expense-summary-item .amount{font-size:18px;font-weight:700;}
+.expense-summary-item .amount.income{color:#4caf50;}
+.expense-summary-item .amount.expense{color:#e76f51;}
+.expense-summary-item .label{font-size:11px;color:#999;}
+.expense-list{display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;}
+.expense-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fff;border-radius:10px;font-size:13px;}
+.expense-item .ei-left{display:flex;gap:10px;align-items:center;}
+.expense-item .ei-cat{font-weight:600;color:#555;}
+.expense-item .ei-note{color:#999;font-size:11px;}
+.expense-item .ei-amount{font-weight:600;}
+.expense-item .ei-amount.expense{color:#e76f51;}
+.expense-item .ei-amount.income{color:#4caf50;}
+.expense-item .ei-del{color:#ccc;cursor:pointer;padding:4px;font-size:14px;}
+.expense-item .ei-del:hover{color:#e55;}
+
+/* ==================== 18. Secret ==================== */
+.secret-desk{display:flex;flex-direction:column;align-items:center;padding:20px;gap:20px;}
+.secret-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:220px;margin:0 auto;justify-items:center;}
+.secret-icon{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:transform .1s;min-width:0;}
+.secret-icon:active{transform:scale(.92);}
+.secret-icon .si-symbol{width:40px;height:40px;border-radius:12px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 1px 3px rgba(30,64,175,.08);}
+.secret-icon .si-name{font-size:9px;color:#666;white-space:nowrap;}
+.secret-content{padding:12px 16px;flex:1;overflow-y:auto;width:100%;}
+.secret-note-card{background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.secret-note-card .sn-time{font-size:11px;color:#bbb;margin-bottom:4px;}
+.secret-note-card .sn-text{font-size:13px;line-height:1.6;color:#555;}
+.secret-chat-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #E0F2FE;font-size:13px;line-height:1.5;}
+.secret-chat-item .sci-role{font-weight:600;min-width:36px;flex-shrink:0;}
+.secret-chat-item .sci-role.ai{color:#1e1e1e;}
+.secret-chat-item .sci-role.user{color:#888;}
+.secret-chat-item .sci-name{font-weight:600;min-width:44px;flex-shrink:0;font-size:12px;}
+.secret-chat-item .sci-name.me{color:#1e1e1e;}
+.secret-chat-item .sci-name.other{color:#888;}
+.secret-contact-header{padding:10px 0 4px;font-size:13px;font-weight:700;color:#444;border-top:1px solid #E0F2FE;margin-top:4px;}
+.secret-contact-header:first-of-type{border-top:none;margin-top:0;}
+.secret-photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.secret-photo-item{aspect-ratio:1;border-radius:10px;background:linear-gradient(145deg,#E0F2FE,#BAE6FD);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:24px;position:relative;overflow:hidden;cursor:default;}
+.secret-photo-item .sp-emoji{font-size:28px;margin-bottom:2px;}
+.secret-photo-item .sp-label{font-size:8px;color:#888;text-align:center;padding:0 2px;line-height:1.2;}
+.secret-photo-time{font-size:9px;color:#bbb;margin-top:2px;text-align:center;}
+.secret-playlist-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.secret-playlist-item .sp-icon{font-size:20px;width:36px;text-align:center;}
+.secret-playlist-item .sp-info{flex:1;}
+.secret-playlist-item .sp-title{font-size:13px;font-weight:500;color:#333;}
+.secret-playlist-item .sp-artist{font-size:11px;color:#999;}
+.secret-playlist-item .sp-time{font-size:10px;color:#ccc;white-space:nowrap;}
+.playlist-header{font-size:13px;font-weight:700;color:#666;padding:12px 0 6px;}
+
+/* ==================== 19. 骰子/抽签 聊天按钮 ==================== */
+.chat-dice-menu{position:absolute;bottom:100%;left:4px;background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.15);padding:6px;display:none;z-index:60;min-width:120px;}
+.chat-dice-menu.show{display:block;}
+.chat-dice-menu button{display:block;width:100%;padding:8px 14px;border-radius:8px;font-size:13px;text-align:left;background:none;border:none;cursor:pointer;}
+.chat-dice-menu button:active{background:#E0F2FE;}
+.chat-dice-draw{display:inline-block;font-size:32px;padding:4px;}
+
+/* ==================== 20. 人设书 ==================== */
+.persona-page{padding:16px;display:flex;flex-direction:column;gap:14px;}
+.persona-field{display:flex;flex-direction:column;gap:6px;}
+.persona-field label{font-size:12px;color:#888;font-weight:600;}
+.persona-field input,.persona-field textarea{border:1px solid #BAE6FD;border-radius:12px;padding:10px 14px;background:#fff;font-size:14px;}
+.persona-field textarea{min-height:120px;resize:vertical;line-height:1.6;}
+.persona-save{padding:12px;border-radius:14px;background:#1e1e1e;color:#F0F9FF;font-size:15px;font-weight:600;text-align:center;}
+.persona-save:active{transform:scale(.97);}
+.persona-section{border-top:1px solid #E0F2FE;padding-top:14px;margin-top:4px;}
+.persona-section-title{font-size:13px;font-weight:700;color:#1e1e1e;margin-bottom:10px;}
+.persona-hint{font-size:11px;color:#aaa;line-height:1.5;margin-top:4px;}
+.api-status{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;}
+.api-status.on{background:#e8f5e9;color:#4caf50;}
+.api-status.off{background:#ffebee;color:#f44336;}
+
+/* ==================== 19. 骨架屏 ==================== */
+.skeleton{background:linear-gradient(90deg,#E0F2FE 25%,#f2f2f2 50%,#E0F2FE 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ==================== 20. 通用按压效果 ==================== */
+.pressable{transition:transform .08s;}
+.pressable:active{transform:scale(.96);}
+
+/* ==================== 21. 潮汐（月经日历） ==================== */
+.tide-page{display:flex;flex-direction:column;height:100%;}
+.tide-cal-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;flex-shrink:0;}
+.tide-cal-header .tide-month{font-size:16px;font-weight:700;}
+.tide-cal-header button{font-size:16px;padding:4px 12px;border-radius:8px;background:#E0F2FE;}
+.tide-cal-header button:active{background:#BAE6FD;}
+.tide-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:#999;padding:0 8px;flex-shrink:0;}
+.tide-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:4px 8px;gap:2px;flex-shrink:0;}
+.tide-day{position:relative;padding:6px 2px;border-radius:10px;font-size:13px;cursor:pointer;transition:background .1s;min-height:32px;display:flex;flex-direction:column;align-items:center;gap:1px;}
+.tide-day:active{background:#E0F2FE;}
+.tide-day.today{font-weight:700;color:#e91e63;}
+.tide-day.period{background:#fce4ec;border-radius:10px;}
+.tide-day.predicted{background:#f3e5f5;border-radius:10px;opacity:.7;}
+.tide-day.other-month{color:#ccc;}
+.tide-day .tide-dot{width:5px;height:5px;border-radius:50%;background:#e91e63;}
+.tide-day .tide-dot.predicted-dot{background:#ba68c8;}
+.tide-info{padding:12px 16px;flex-shrink:0;display:flex;gap:8px;flex-wrap:wrap;}
+.tide-info-chip{padding:6px 12px;border-radius:10px;background:#E0F2FE;font-size:12px;font-weight:600;color:#666;}
+.tide-info-chip.urgent{background:#fce4ec;color:#e91e63;}
+.tide-info-chip.soon{background:#f3e5f5;color:#9c27b0;}
+.tide-info-chip.ok{background:#e8f5e9;color:#4caf50;}
+.tide-edit-section{padding:8px 16px;border-top:1px solid #E0F2FE;flex:1;overflow-y:auto;}
+.tide-edit-title{font-size:13px;font-weight:700;margin-bottom:8px;color:#666;}
+.tide-form-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+.tide-form-row label{font-size:12px;color:#888;white-space:nowrap;min-width:50px;}
+.tide-form-row input{flex:1;border:1px solid #BAE6FD;border-radius:10px;padding:8px 10px;background:#fff;font-size:13px;}
+.tide-btn{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;}
+.tide-btn-primary{background:#e91e63;color:#fff;}
+.tide-btn-secondary{background:#E0F2FE;color:#666;}
+.tide-btn:active{opacity:.8;}
+
+/* 心情选择器 */
+.tide-mood-picker{display:none;padding:12px 16px;border-top:1px solid #E0F2FE;background:#F0F9FF;}
+.tide-mood-picker-title{font-size:14px;font-weight:700;margin-bottom:8px;text-align:center;}
+.tide-mood-options{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;}
+.tide-mood-options button{padding:8px 12px;border-radius:12px;background:#E0F2FE;font-size:18px;cursor:pointer;border:none;transition:all .1s;}
+.tide-mood-options button:active{transform:scale(.92);background:#BAE6FD;}
+.tide-period-list{margin-top:8px;}
+.tide-period-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#F0F9FF;border-radius:10px;margin-bottom:4px;font-size:12px;}
+.tide-period-item .tpi-dates{color:#333;}
+.tide-period-item .tpi-len{color:#999;font-size:11px;}
+.tide-period-item .tpi-del{color:#ccc;cursor:pointer;font-size:14px;}
+.tide-period-item .tpi-del:hover{color:#e91e63;}
+.tide-legend{display:flex;gap:12px;padding:4px 16px;font-size:11px;color:#999;align-items:center;flex-shrink:0;}
+.tide-legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:2px;}
+
+/* ==================== 22. 每日心情 ==================== */
+.mood-page{display:flex;flex-direction:column;height:100%;}
+.mood-cal-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;flex-shrink:0;}
+.mood-cal-header .mood-month{font-size:16px;font-weight:700;}
+.mood-cal-header button{font-size:16px;padding:4px 12px;border-radius:8px;background:#E0F2FE;}
+.mood-cal-header button:active{background:#BAE6FD;}
+.mood-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:#999;padding:0 8px;flex-shrink:0;}
+.mood-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:4px 8px;gap:2px;flex-shrink:0;}
+.mood-day{position:relative;padding:4px 2px;border-radius:10px;font-size:11px;cursor:pointer;min-height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:background .1s;}
+.mood-day:active{background:#E0F2FE;}
+.mood-day.today{font-weight:700;}
+.mood-day.other-month{color:#ccc;}
+.mood-day .mood-emoji{font-size:14px;}
+.mood-day .mood-date{font-size:10px;color:#999;}
+.mood-chart-section{padding:12px 16px;border-top:1px solid #E0F2FE;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.mood-chart-title{font-size:13px;font-weight:700;color:#666;}
+.mood-chart-wrap{width:100%;background:#F0F9FF;border-radius:12px;padding:8px;overflow:hidden;}
+.mood-today-section{padding:8px 16px;flex-shrink:0;border-top:1px solid #E0F2FE;}
+.mood-today-title{font-size:12px;color:#888;margin-bottom:6px;}
+.mood-emoji-picker{display:flex;gap:6px;flex-wrap:wrap;}
+.mood-emoji-btn{font-size:22px;padding:4px;border-radius:8px;cursor:pointer;transition:transform .1s;}
+.mood-emoji-btn:active{transform:scale(.9);}
+/* 微信风格联系人列表 */
+.secret-contact-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E0F2FE;cursor:pointer;transition:background .1s;}
+.secret-contact-item:active{background:#E0F2FE;}
+.secret-contact-item .sci-avatar{width:44px;height:44px;border-radius:12px;background:#E0F2FE;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.secret-contact-item .sci-info{flex:1;min-width:0;}
+.secret-contact-item .sci-name-row{display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.secret-contact-item .sci-nickname{font-size:14px;font-weight:500;color:#333;}
+.secret-contact-item .sci-lastmsg{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.secret-contact-item .sci-time{font-size:10px;color:#ccc;white-space:nowrap;flex-shrink:0;}
+.convo-bubble{display:flex;margin-bottom:8px;}
+.convo-bubble.me{justify-content:flex-end;}
+.convo-bubble.them{justify-content:flex-start;}
+.convo-text{max-width:75%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;word-break:break-word;}
+.convo-bubble.me .convo-text{background:#1e1e1e;color:#F0F9FF;border-bottom-right-radius:4px;}
+.convo-bubble.them .convo-text{background:#E0F2FE;color:#1e1e1e;border-bottom-left-radius:4px;}
+.mood-emoji-btn.selected{background:#E0F2FE;}
+.mood-insight{font-size:12px;color:#888;padding:6px 0;line-height:1.6;}
+
+/* ===== 专注伴伴 - 计时页样式 ===== */
+.companion-timer-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;height:100%;}
+.companion-page{display:flex;flex-direction:column;align-items:center;padding:16px;}
+.companion-activities{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:20px;}
+.companion-act-btn{padding:14px 8px;border-radius:14px;background:#E0F2FE;font-size:13px;font-weight:600;text-align:center;transition:all .15s;cursor:pointer;}
+.companion-act-btn:active{transform:scale(.95);}
+.companion-act-btn.selected{background:#1e1e1e;color:#F0F9FF;}
+.companion-timer{font-size:48px;font-weight:700;letter-spacing:2px;margin-bottom:20px;font-variant-numeric:tabular-nums;}
+.companion-btns{display:flex;gap:12px;}
+.companion-btn{padding:12px 28px;border-radius:14px;font-size:14px;font-weight:600;background:#1e1e1e;color:#F0F9FF;cursor:pointer;border:none;}
+.companion-btn.secondary{background:#BAE6FD;color:#1e1e1e;}
+.companion-btn:active{transform:scale(.95);}
+/* 任务输入 */
+.companion-input-group{margin-bottom:16px;width:100%;}
+.companion-input-group .input-label{font-size:12px;color:#888;font-weight:600;margin-bottom:6px;}
+.companion-input-group input,.companion-input-group select{border:1px solid #BAE6FD;border-radius:12px;padding:10px 14px;background:#fff;font-size:14px;width:100%;}
+/* 时长选择 */
+.duration-row{display:flex;align-items:center;justify-content:center;gap:16px;}
+.duration-btn{width:44px;height:44px;border-radius:50%;background:#E0F2FE;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.duration-btn:active{background:#BAE6FD;transform:scale(.92);}
+.duration-display{font-size:40px;font-weight:700;min-width:80px;text-align:center;}
+.duration-unit{font-size:12px;color:#888;text-align:center;}
+/* 模式切换 */
+.mode-toggle{display:flex;gap:8px;}
+.mode-btn{flex:1;padding:10px;border-radius:12px;background:#E0F2FE;font-size:14px;font-weight:600;text-align:center;cursor:pointer;}
+.mode-btn.active{background:#1e1e1e;color:#F0F9FF;}
+/* 铃声设置 */
+.ringtone-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+.ringtone-arrow{transition:transform .2s;font-size:12px;}
+.ringtone-arrow.open{transform:rotate(90deg);}
+.ringtone-panel{display:none;padding:8px 0 4px;}
+.ringtone-panel.open{display:block;}
+.ringtone-status{font-size:12px;color:#888;margin-bottom:8px;}
+.ringtone-actions{display:flex;gap:8px;}
+.ringtone-btn{padding:6px 14px;border-radius:10px;background:#E0F2FE;font-size:12px;font-weight:600;cursor:pointer;}
+.ringtone-btn:active{background:#BAE6FD;}
+.ringtone-hint{font-size:10px;color:#bbb;margin-top:6px;}
+/* 计时中-全屏 */
+.timer-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300;color:#fff;}
+.timer-main-time{font-size:72px;font-weight:700;letter-spacing:4px;font-variant-numeric:tabular-nums;}
+.timer-main-time.pulse{animation:tpPulse 2s ease-in-out infinite;}
+@keyframes tpPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.timer-status-line{font-size:13px;color:rgba(255,255,255,.5);margin-top:12px;}
+.timer-exit-btn{position:fixed;top:12px;right:16px;z-index:301;font-size:22px;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;}
+.timer-exit-btn:active{color:#fff;}
+/* AI 气泡 */
+.bubble-container{position:fixed;bottom:60px;left:0;right:0;z-index:302;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.bubble{background:rgba(30,30,50,.92);color:#BAE6FD;border-radius:18px;padding:12px 18px;font-size:14px;line-height:1.5;max-width:80%;pointer-events:auto;animation:bubbleIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);}
+.bubble .bubble-ai-name{font-size:11px;color:#888;margin-bottom:2px;}
+.bubble .bubble-text{line-height:1.5;}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* 完成页 */
+.companion-end-page{display:flex;flex-direction:column;padding:16px;gap:16px;}
+.end-stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #E0F2FE;font-size:14px;}
+.end-stat-row .end-stat-label{color:#888;}
+.end-stat-row .end-stat-value{font-weight:600;}
+.end-card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.end-chat-preview{max-height:150px;overflow-y:auto;font-size:13px;color:#555;line-height:1.6;}
+.end-chat-preview .chat-line{padding:4px 0;}
+.end-chat-preview .chat-line .speaker{font-weight:600;color:#333;}
+/* 记录页 */
+.companion-records{padding:16px;display:flex;flex-direction:column;gap:16px;}
+.records-summary{display:flex;gap:12px;}
+.summary-card{flex:1;background:#fff;border-radius:14px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.summary-card .summary-num{font-size:24px;font-weight:700;}
+.summary-card .summary-label{font-size:11px;color:#888;margin-top:4px;}
+.records-tabs{display:flex;gap:4px;background:#E0F2FE;border-radius:10px;padding:3px;margin-bottom:12px;}
+.records-tab{padding:6px 0;flex:1;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;background:transparent;color:#888;}
+.records-tab.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#1e1e1e;}
+.records-list{display:flex;flex-direction:column;gap:6px;}
+.record-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fff;border-radius:10px;font-size:13px;}
+.record-item .ri-left{flex:1;}
+.record-item .ri-task{font-weight:500;}
+.record-item .ri-time{font-size:11px;color:#888;}
+.record-empty{text-align:center;color:#999;font-size:13px;padding:30px 0;line-height:1.8;}
+
+/* ==================== 23. 聊天列表（微信风格） ==================== */
+.conv-list{flex:1;overflow-y:auto;}
+.conv-item{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background .1s;border-bottom:1px solid #E0F2FE;}
+.conv-item:active{background:#E0F2FE;}
+.conv-item.active{background:#E0F2FE;}
+.conv-avatar{width:48px;height:48px;border-radius:50%;background:#E0F2FE;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.conv-info{flex:1;min-width:0;}
+.conv-name-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.conv-name{font-size:15px;font-weight:600;color:#1e1e1e;}
+.conv-time{font-size:11px;color:#bbb;}
+.conv-preview{font-size:13px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-empty{text-align:center;color:#aaa;font-size:13px;padding:40px;}
+.conv-del{width:24px;height:24px;border-radius:50%;background:#e55;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;flex-shrink:0;line-height:1;}
+
+/* ==================== 24. 聊天页飞鸟壁纸 ==================== */
+.chat-wallpaper{
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='390' height='750'%3E%3Cg opacity='0.12' fill='%2394A3B8'%3E%3Cpath d='M80 180 Q95 160 115 165 Q100 170 95 180 Q90 170 80 180Z'/%3E%3Cpath d='M115 165 Q130 155 145 162 Q130 165 125 170 Q120 163 115 165Z'/%3E%3Cpath d='M300 320 Q315 300 335 305 Q320 310 315 320 Q310 310 300 320Z'/%3E%3Cpath d='M335 305 Q350 295 365 302 Q350 305 345 310 Q340 303 335 305Z'/%3E%3Cpath d='M160 420 Q168 410 178 413 Q170 416 168 420 Q165 415 160 420Z'/%3E%3Cpath d='M178 413 Q186 407 194 411 Q186 413 184 416 Q182 411 178 413Z'/%3E%3Cpath d='M50 530 Q65 510 85 515 Q70 520 65 530 Q60 520 50 530Z'/%3E%3Cpath d='M85 515 Q100 505 115 512 Q100 515 95 520 Q90 513 85 515Z'/%3E%3Cpath d='M340 130 Q348 122 358 125 Q350 127 348 131 Q346 126 340 130Z'/%3E%3Cpath d='M358 125 Q366 119 374 123 Q366 125 364 128 Q362 123 358 125Z'/%3E%3C/g%3E%3C/svg%3E") no-repeat center center,
+    linear-gradient(160deg, #F0F9FF 0%, #F0F9FF 30%, #EFF6FF 60%, #F0F9FF 100%);
+  background-size: cover, cover;
+}
+/* 聊天页内容在飞鸟之上 */
+#page-chat .chat-page, #page-conv-list .conv-list{position:relative;z-index:1;}
+#page-chat .chat-messages{background:transparent;padding-top:8px;}
+#page-chat .chat-msg.ai{background:#FFFFFF;color:#334155;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);}
+#page-chat .chat-msg.user{background:#475569;color:#F0F9FF;border-bottom-right-radius:4px;box-shadow:0 2px 6px rgba(71,85,105,.2);}
+#page-chat .chat-context-bar{border-top:1px solid rgba(186,230,253,.5);}
+#page-conv-list .conv-list{padding:4px 0;}
+#page-conv-list .conv-list .conv-item{background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);margin:0 8px 1px;border-radius:12px;border-bottom:none;}
+#page-chat .chat-input-bar{background:rgba(240,249,255,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(186,230,253,.5);}
+#page-chat .chat-context-bar{background:rgba(224,242,254,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+/* 聊天页进入动画气泡适配 */
+#page-chat .chat-typing{background:rgba(224,242,254,.8);backdrop-filter:blur(4px);}
+
+/* ==================== 25. 设置页 ==================== */
+.settings-card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.settings-row{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.settings-row-left{flex:1;min-width:0;}
+.settings-row-title{font-size:14px;font-weight:600;color:#1e1e1e;}
+.settings-row-desc{font-size:11px;color:#999;margin-top:3px;line-height:1.4;}
+.settings-section-title{font-size:13px;font-weight:700;color:#1e1e1e;margin-bottom:10px;}
+
+/* ==================== v4.0 查找聊天记录 ==================== */
+.chat-search-overlay{position:absolute;inset:0;background:rgba(255,255,255,.97);z-index:60;flex-direction:column;padding:10px 12px;}
+.chat-search-box{display:flex;align-items:center;gap:8px;background:#E0F2FE;border-radius:12px;padding:8px 12px;}
+.chat-search-box input{flex:1;border:none;background:transparent;font-size:14px;outline:none;color:#2D3748;}
+.chat-search-results{flex:1;overflow-y:auto;margin-top:10px;}
+.chat-search-item{padding:10px 12px;border-radius:12px;cursor:pointer;margin-bottom:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+.chat-search-item:active{background:#E0F2FE;}
+.csi-role{font-size:11px;color:#A0AEC0;margin-bottom:2px;}
+.csi-text{font-size:13px;color:#2D3748;line-height:1.5;}
+
+/* ==================== v4.0 专注页一页放下 ==================== */
+.companion-page{padding:12px;}
+.companion-activities{gap:6px;margin-bottom:10px;}
+.companion-act-btn{padding:8px 4px;font-size:12px;border-radius:10px;}
+.companion-input-group{margin-bottom:8px;}
+.companion-timer{font-size:36px;margin-bottom:10px;}
+.companion-btns{gap:8px;}
+.companion-btn{padding:10px 22px;}
+.duration-display{font-size:32px;}
+.duration-btn{width:38px;height:38px;}
+.mode-btn{padding:8px;}
+.ringtone-actions{gap:6px;}
+
+/* ==================== v4.0 去方框感 ==================== */
+.secret-icon .si-symbol{box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.settings-card{box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.schedule-item,.expense-form{box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.app-icon{box-shadow:0 1px 4px rgba(166,204,221,.3);}
+#page-conv-list .conv-list .conv-item{box-shadow:0 1px 3px rgba(0,0,0,.04);}
+
+/* ==================== v4.4.0 心跳页（清新版） ==================== */
+.heart-page{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.heart-badge{font-size:10px;color:#f472b6;background:#fdf2f8;border:1px solid #fbcfe8;padding:2px 10px;border-radius:20px;font-weight:600;}
+.heart-card{background:#fff;border-radius:20px;padding:26px 16px 20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.heart-halo{width:96px;height:96px;margin:0 auto 10px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#fff1f5,#ffe4ec);display:flex;align-items:center;justify-content:center;}
+.heart-beat{font-size:52px;line-height:1;animation:heartbeat 1s infinite ease-in-out;transform-origin:center;}
+@keyframes heartbeat{0%{transform:scale(1);}12%{transform:scale(1.16);}24%{transform:scale(1);}40%{transform:scale(1.06);}60%{transform:scale(1);}100%{transform:scale(1);}}
+.heart-bpm{font-size:44px;font-weight:200;color:#111;line-height:1.1;letter-spacing:-1px;}
+.heart-bpm .heart-unit{font-size:14px;font-weight:400;color:#cbd5e1;margin-left:6px;letter-spacing:0;}
+.heart-temp-line{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:13px;color:#94a3b8;}
+.heart-temp{color:#be123c;font-weight:600;}
+.heart-dot{color:#e2e8f0;}
+.heart-updated{font-size:12px;}
+.heart-state-desc{display:inline-block;margin-top:12px;font-size:12px;color:#f472b6;background:#fff1f5;padding:4px 12px;border-radius:20px;font-weight:600;}
+.heart-actions{display:flex;gap:8px;}
+.heart-measure{flex:1.4;background:#1e1e1e;color:#F0F9FF;border:none;border-radius:14px;padding:12px;font-size:14px;font-weight:600;}
+.heart-toggle{flex:1;background:#f1f5f9;color:#475569;border:none;border-radius:14px;padding:12px;font-size:12px;font-weight:600;}
+.heart-stats{display:flex;gap:8px;}
+.heart-stat{flex:1;background:#fff;border-radius:16px;padding:14px 8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.heart-stat .heart-num{font-size:20px;font-weight:600;color:#0f172a;}
+.hs-label{font-size:11px;color:#94a3b8;margin-top:3px;}
+.heart-section-title{font-size:13px;font-weight:600;color:#475569;margin-top:2px;}
+.heart-spark-wrap{background:#fff;border-radius:16px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.heart-history-head{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:16px;padding:12px 16px;font-size:13px;font-weight:600;color:#475569;box-shadow:0 1px 4px rgba(0,0,0,.04);cursor:pointer;}
+.heart-history-head:active{background:#f8fafc;}
+.heart-history-meta{font-size:12px;color:#94a3b8;font-weight:400;display:flex;align-items:center;gap:4px;}
+.heart-chevron{display:inline-block;transition:transform .2s;font-size:10px;}
+.heart-history-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:10px 14px;margin-top:6px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+.heart-hi-time{font-size:12px;color:#94a3b8;}
+.heart-hi-hr{font-size:14px;font-weight:700;color:#be123c;}
+.heart-hi-temp{font-size:12px;color:#f472b6;}
+
+/* ---- 心跳：手动调节区间 ---- */
+.heart-range-box{background:#fff;border-radius:16px;padding:14px 16px;margin-top:6px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.heart-range-row{margin-bottom:12px;}
+.heart-range-label{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:#64748b;margin-bottom:6px;}
+.heart-range-label b{font-size:13px;color:#be123c;font-weight:700;}
+.heart-range-row input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:#f1d7e4;outline:none;}
+.heart-range-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#ec4899;border:2px solid #fff;box-shadow:0 1px 4px rgba(236,72,153,.4);cursor:pointer;}
+.heart-range-row input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#ec4899;border:2px solid #fff;box-shadow:0 1px 4px rgba(236,72,153,.4);cursor:pointer;}
+.heart-range-preview{font-size:11px;color:#94a3b8;line-height:1.6;background:#fdf2f8;border-radius:10px;padding:8px 10px;margin-top:2px;}
+.heart-range-btns{display:flex;gap:8px;margin-top:10px;}
+.heart-range-btn{flex:1;background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;border-radius:12px;padding:9px;font-size:12px;font-weight:600;cursor:pointer;}
+.heart-range-btn.reroll{background:#fdf2f8;color:#be123c;border-color:#fbcfe8;}
+.heart-range-note{font-size:10px;color:#cbd5e1;line-height:1.6;margin-top:8px;}
+
+/* ---- 呼吸练习（4-7-8）+ 手环预览 ---- */
+.heart-actions-mini{display:flex;gap:8px;}
+.heart-breathe,.heart-band,.heart-report{flex:1;background:#eef6ff;color:#3b82f6;border:1px solid #dbeafe;border-radius:14px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;}
+.heart-band{background:#f5f3ff;color:#7c3aed;border-color:#ede9fe;}
+.heart-report{background:#e6f2fa;color:#4a7ba6;border-color:#d0e6ee;}
+.heart-breathe.high{background:#fef2f2;color:#ef4444;border-color:#fecaca;animation:tpPulse 1.2s infinite;}
+.steps-card{background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.04);margin-top:12px;}
+.steps-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:#4a7ba6;}
+.steps-mode{font-size:10px;color:#a6ccdd;font-weight:400;}
+.steps-numline{display:flex;align-items:baseline;gap:5px;margin-top:8px;}
+.steps-num{font-size:30px;font-weight:700;color:#4a7ba6;line-height:1;}
+.steps-unit{font-size:12px;color:#a6ccdd;}
+.steps-target{font-size:11px;color:#c3d6e4;}
+.steps-track{height:6px;background:#d0e6ee;border-radius:3px;overflow:hidden;margin-top:8px;}
+.steps-bar{height:100%;width:0;background:linear-gradient(90deg,#a6ccdd,#4a7ba6);border-radius:3px;transition:width .5s;}
+.steps-foot{display:flex;align-items:center;justify-content:space-between;margin-top:9px;}
+.steps-week{font-size:11px;color:#a6ccdd;}
+.steps-week b{color:#4a7ba6;}
+.steps-bump{font-size:11px;color:#4a7ba6;background:#eef4fb;border:1px solid #d0e6ee;border-radius:12px;padding:4px 12px;cursor:pointer;}
+.steps-bump:active{background:#dcebf5;}
+.steps-btns{display:flex;gap:6px;}
+
+/* ---- 手环屏幕预览（海玻璃配色） ---- */
+.band-page{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;align-items:center;background:linear-gradient(180deg,#ecf6f8,#d0e6ee);}
+.band-hint{font-size:12px;color:#6f94ab;text-align:center;line-height:1.7;}
+.band-oled{width:min(252px,86vw);aspect-ratio:2/1;background:#ecf6f8;border-radius:16px;box-shadow:0 0 0 2px #d0e6ee,0 8px 24px rgba(166,204,221,.35);overflow:hidden;}
+.band-oled canvas{width:100%;height:100%;display:block;}
+.band-status{font-size:11px;color:#6f94ab;text-align:center;}
+.band-btns{display:flex;gap:8px;width:100%;}
+.band-btns .heart-measure{flex:1.4;background:#a6ccdd;color:#ecf6f8;border:none;border-radius:14px;padding:12px;font-size:13px;font-weight:600;}
+.band-back{flex:1;background:#ecf6f8;color:#6f94ab;border:1px solid #d0e6ee;border-radius:14px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;}
+.breathe-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.breathe-box{width:min(280px,86vw);background:#fff;border-radius:24px;padding:24px 18px 18px;text-align:center;box-shadow:0 12px 40px rgba(20,25,45,.3);}
+.breathe-title{font-size:14px;font-weight:600;color:#334155;margin-bottom:16px;}
+.breathe-circle{width:150px;height:150px;margin:0 auto 14px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#fce7f3,#fbcfe8);box-shadow:0 0 34px rgba(236,72,153,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.breathe-phase{font-size:16px;font-weight:700;color:#be185d;}
+.breathe-count{font-size:32px;font-weight:300;color:#9d174d;line-height:1.1;}
+.breathe-rounds{font-size:12px;color:#94a3b8;margin-bottom:8px;}
+.breathe-done{margin:4px 0 10px;}
+.breathe-done-text{font-size:14px;font-weight:600;color:#be185d;margin-bottom:10px;}
+.breathe-close{margin-top:10px;background:#f1f5f9;color:#64748b;border:none;border-radius:12px;padding:9px 18px;font-size:13px;cursor:pointer;}
+.breathe-overlay .heart-measure{width:100%;margin-top:2px;}
+
+/* ==================== 课表（course.js v2：Excel式网格 + 值班日期） ==================== */
+.course-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 10px;background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(90,130,170,.10);margin-bottom:8px;font-size:12px;}
+.course-bar input[type=date]{flex:1;min-width:90px;font-size:12px;padding:4px 6px;border:1px solid #d0e6ee;border-radius:8px;color:#3a5a6e;background:#f6fbfd;}
+.course-badge{white-space:nowrap;font-size:11px;color:#5b87a2;background:#eef4fb;border-radius:999px;padding:3px 10px;line-height:1.5;}
+.course-badge b{font-size:13px;}
+.course-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.course-t{border-collapse:separate;border-spacing:1.5px;width:100%;min-width:440px;table-layout:fixed;}
+.course-t th.course-dl{background:transparent;padding:0;}
+.course-t th.course-dh{background:#eef4fb;color:#4a7ba6;font-size:12px;font-weight:600;border-radius:8px;padding:5px 2px;text-align:center;vertical-align:middle;white-space:nowrap;}
+.course-t th.course-dh span{display:block;font-size:9px;font-weight:400;color:#a6c2d2;margin-top:1px;}
+.course-t th.course-dh.on{background:#5b87a2;color:#fff;}
+.course-t th.course-dh.on span{color:#dcebf2;}
+.course-t td.course-pl{font-size:10px;color:#93adbd;text-align:center;background:#fff;border-radius:6px;white-space:nowrap;padding:0 2px;overflow:hidden;}
+.course-t td.course-open{background:#fbfdfe;border:1px solid #eef4f8;border-radius:6px;height:26px;padding:0;cursor:pointer;}
+.course-t td.course-open.ctd{background:#f2f8fb;}
+.course-t td.course-block{vertical-align:top;border-radius:8px;padding:4px 5px;font-size:10px;cursor:pointer;box-shadow:0 1px 3px rgba(60,100,140,.10);line-height:1.3;}
+.course-block .course-cn{font-size:11px;font-weight:700;word-break:break-all;}
+.course-block .course-cs{font-size:8.5px;opacity:.75;margin-top:1px;white-space:nowrap;}
+.course-block .course-cr{font-size:9px;opacity:.6;margin-top:2px;white-space:nowrap;}
+.course-select,.course-input{width:100%;font-size:13px;padding:7px 6px;border:1px solid #d0e6ee;border-radius:10px;color:#3a5a6e;background:#f6fbfd;box-sizing:border-box;}
+.course-input{font-size:14px;padding:8px;}
+.course-num{width:54px;font-size:13px;padding:6px 2px;text-align:center;border:1px solid #d0e6ee;border-radius:10px;color:#3a5a6e;background:#f6fbfd;}
+.course-seg{flex:1;text-align:center;padding:6px 0;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;color:#6f94ab;}
+.course-seg.on{background:#fff;color:#2c5a78;font-weight:700;box-shadow:0 1px 5px rgba(90,130,170,.18);}
+.course-duty-head{display:flex;align-items:center;justify-content:space-between;margin:2px 2px 6px;}
+.course-addbtn{padding:6px 12px;border:none;border-radius:999px;background:linear-gradient(135deg,#e8a13c,#d97c46);color:#fff;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(217,124,70,.18);}
+.duty-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid #eef4f8;}
+.duty-row:last-child{border-bottom:none;}
+.duty-d{flex:none;font-size:12px;font-weight:700;color:#3a5a6e;white-space:nowrap;}
+.duty-d .duty-t{display:block;font-size:10px;font-weight:400;color:#8fb1c6;margin-top:1px;}
+.duty-m{flex:1;min-width:0;font-size:12px;color:#5a7c92;text-align:right;}
+.duty-today{background:#fdf6ec;border-radius:10px;}
+.duty-today .duty-d{color:#c96a2b;}
+.duty-today .duty-m{color:#8a5a24;font-weight:600;}
+.duty-past{opacity:.45;}
+
+/* 每周固定值班：行可点编辑 + 值班中/下次/今天 标签 */
+.duty-row{cursor:pointer;}
+.duty-live{background:#eaf6ef;}
+.duty-live .duty-d{color:#2f8f6b;}
+.duty-live .duty-m{color:#2b5a44;font-weight:600;}
+.duty-tag{display:inline-block;margin-left:8px;font-size:10px;line-height:1.4;color:#fff;background:#c98a3c;border-radius:999px;padding:2px 8px;font-weight:600;vertical-align:middle;}
+.duty-live .duty-tag{background:#3f8f6b;}
+.duty-today .duty-tag{background:#c96a2b;}
+.duty-x{flex:none;background:none;border:none;color:#d9a6a0;font-size:14px;cursor:pointer;padding:2px;}
+
+/* 主页「今日课表+值班」widget（course.js renderTodaySchedule） */
+.today-card{background:#fff;border:1px solid #e4f0f5;border-radius:16px;padding:10px 12px;margin:0 2px 4px;box-shadow:0 2px 12px rgba(166,204,221,.25);}
+.today-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.today-title{font-size:14px;font-weight:700;color:#3a5a6e;}
+.today-sub{font-size:10px;color:#a6c2d2;}
+.today-block{margin-top:7px;padding:6px 8px 4px;border-radius:10px;background:#f5fafd;}
+.today-block.duty-block{background:#fdf6ec;}
+.today-block-t{font-size:10px;color:#8fb1c6;font-weight:600;margin-bottom:1px;}
+.duty-block .today-block-t{color:#c9a26a;}
+.today-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;color:#3a5a6e;line-height:1.5;}
+.today-row .t-badge{font-size:11px;color:#fff;background:#5b87a2;border-radius:6px;padding:1px 6px;flex:none;font-weight:600;white-space:nowrap;}
+.today-row.duty .t-badge{background:#e8a13c;}
+.today-row .t-loc{margin-left:auto;font-size:11px;color:#8fb1c6;white-space:nowrap;}
+.today-empty{font-size:12px;color:#b9cfdc;padding:4px 0 6px;}
+.today-next{margin-top:7px;font-size:11px;color:#7c9cb1;padding:5px 8px;background:#eef7fb;border-radius:9px;}
+.today-now-tag{display:inline-block;font-size:9px;color:#d97c46;border:1px solid #f2c9a8;background:#fdf2e7;border-radius:999px;padding:0 6px;line-height:1.6;margin-left:6px;flex:none;}
