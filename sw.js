@@ -1,5 +1,5 @@
-const CACHE = 'phone-demo-v2';
-const SW_VERSION = 2;
+const CACHE = 'phone-demo-v3';
+const SW_VERSION = 3;
 
 self.addEventListener('install', e => {
   console.log('[SW] Install v' + SW_VERSION);

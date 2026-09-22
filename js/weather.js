@@ -265,7 +265,20 @@ let cdData = lsGet('countdown', { event:'纪念日', date:'', bg:'' });
 function updateCountdown() {
   document.getElementById('cdEvent').textContent = cdData.event || '未设置';
   document.getElementById('cdDate').textContent = cdData.date || '';
-  const target = new Date(cdData.date);
+  if (cdData.bg) {
+    const card = document.getElementById('countdownCard');
+    card.style.backgroundImage = `url(${cdData.bg})`;
+    card.style.backgroundSize = 'cover';
+    card.style.backgroundPosition = 'center';
+  }
+  // 还没设日期时 new Date('') 是 Invalid Date，减出来是 NaN，卡片上就会写「NaN 天后」
+  const target = cdData.date ? new Date(cdData.date) : null;
+  if (!target || isNaN(target.getTime())) {
+    document.getElementById('cdDays').textContent = '--';
+    document.getElementById('cdUnit').textContent = '';
+    cdData._isFuture = false;
+    return;
+  }
   const now = new Date();
   now.setHours(0,0,0,0);
   target.setHours(0,0,0,0);
@@ -278,12 +291,6 @@ function updateCountdown() {
     document.getElementById('cdUnit').textContent = '天后';
   }
   cdData._isFuture = diffDays < 0;
-  if (cdData.bg) {
-    const card = document.getElementById('countdownCard');
-    card.style.backgroundImage = `url(${cdData.bg})`;
-    card.style.backgroundSize = 'cover';
-    card.style.backgroundPosition = 'center';
-  }
 }
 
 function openCdEdit() {
@@ -295,7 +302,7 @@ function openCdEdit() {
 function closeCdEdit() { document.getElementById('cdEditModal').classList.remove('show'); }
 function saveCdEdit() {
   cdData.event = document.getElementById('cdEditEvent').value.trim() || '纪念日';
-  cdData.date = document.getElementById('cdEditDate').value || '2026-01-01';
+  cdData.date = document.getElementById('cdEditDate').value || '';
   cdData.bg = document.getElementById('cdEditBg').value.trim();
   lsSet('countdown', cdData);
   updateCountdown();
